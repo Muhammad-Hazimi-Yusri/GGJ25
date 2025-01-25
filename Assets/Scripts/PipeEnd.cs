@@ -16,4 +16,15 @@ public class PipeEnd : MonoBehaviour
             manager.OnPipeTriggered(this, other.transform);
         }
     }
+
+    //on trigger exit, set the cooldown to false
+    private void OnTriggerExit(Collider other)
+    {
+        
+        if(other.CompareTag("Draggable"))
+        {
+            manager.OnPipeExit();
+        }
+    }
+
 }

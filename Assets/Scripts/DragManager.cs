@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class DragManager : MonoBehaviour
 {
@@ -25,6 +26,10 @@ public class DragManager : MonoBehaviour
 
     // The position we want to move the rigidbody toward
     private Vector3 _targetPosition;
+
+
+    public event Action OnDragEnd;
+
 
     // How fast scrolling moves the object forward/back
     [SerializeField] private float scrollSensitivity = 1.0f;
@@ -159,5 +164,7 @@ public class DragManager : MonoBehaviour
 
         _isDragging = false;
         _selectedRigidbody = null;
+
+        OnDragEnd?.Invoke();
     }
 }

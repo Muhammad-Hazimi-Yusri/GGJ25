@@ -12,6 +12,14 @@ public class PipeManager : MonoBehaviour
 
     bool cooldown = false;
 
+    private Transform transportingGameObject;
+    PipeEnd pipeToTransportTo = null;
+
+    public void OnPipeExit()
+    {
+        cooldown = false;
+        dragManager.OnDragEnd -= OnPressEnd;
+    }
 
     public void OnPipeTriggered(PipeEnd pipeEnd, Transform objectTransform)
     {
@@ -25,17 +33,30 @@ public class PipeManager : MonoBehaviour
 
         Debug.Log("After Cooldown");
 
-        //transform the object to the destination of the pipe end +a small z  and have a cooldown so it doesn't teleport back and forth
-        objectTransform.position = pipeEnd.destination.position + new Vector3(0, 0, -1f);
+        dragManager.OnDragEnd += OnPressEnd;
 
-        dragManager.endDragAfterTeleport();
+
+        transportingGameObject = objectTransform;
+        pipeToTransportTo = pipeEnd;
+
+
+    }
+
+    public void OnPressEnd()
+    {
+
+
+        //transform the object to the destination of the pipe end +a small z  and have a cooldown so it doesn't teleport back and forth
+        transportingGameObject.position = pipeToTransportTo.destination.position + new Vector3(0, 0, -1f);
+
+        //dragManager.endDragAfterTeleport();
 
 
         StartCoroutine(waitABit());
 
-
-
+        transportingGameObject = null;
     }
+
 
     IEnumerator waitABit()
     {
