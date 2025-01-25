@@ -97,9 +97,7 @@ public class LeakPuzzle : PuzzleBase
         if (postProcessing.profile.TryGet<ColorAdjustments>(out colourAdjustments)) Debug.Log("Colour Adjustments Found!");
         if (postProcessing.profile.TryGet<ChromaticAberration>(out chromaticAberration)) Debug.Log("Chromatic Aberration Found!");
         if (postProcessing.profile.TryGet<Vignette>(out vignette)) Debug.Log("Vignette Found!");
-        
-        // Start the puzzle
-        InitializePuzzle();
+    
     }
 
     private void Update()
