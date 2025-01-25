@@ -643,6 +643,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   manager: {fileID: 1134623843}
   destination: {fileID: 1439079577}
+  spawnPoint: {fileID: 0}
+  spawnDirecton: {x: 0, y: 0, z: 0}
 --- !u!135 &220312424
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2079,6 +2081,7 @@ MonoBehaviour:
   PCPipe: {fileID: 220312421}
   VRPipe: {fileID: 0}
   dragManager: {fileID: 2075660834}
+  bubbleObject: {fileID: 0}
 --- !u!4 &1134623844
 Transform:
   m_ObjectHideFlags: 0
@@ -2529,6 +2532,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   manager: {fileID: 1134623843}
   destination: {fileID: 220312425}
+  spawnPoint: {fileID: 0}
+  spawnDirecton: {x: 0, y: 0, z: 0}
 --- !u!135 &1439079580
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3268,6 +3273,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 995431572}
   inputActions: {fileID: -944628639613478452, guid: abdc51f9d1a5af042b55caed42a59701, type: 3}
+  _zDistance: 0
+  minZDistance: 7
+  maxZDistance: 9
   scrollSensitivity: -0.01
 --- !u!4 &2075660835
 Transform:
