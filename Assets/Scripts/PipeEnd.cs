@@ -4,6 +4,8 @@ public class PipeEnd : MonoBehaviour
 {
     public PipeManager manager; // Reference to the central PipeManager
     public Transform destination; // Where this pipe end teleports objects to
+    public Transform spawnPoint; // Where objects should be spawned
+    public Vector3 spawnDirecton;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -14,6 +16,11 @@ public class PipeEnd : MonoBehaviour
         if (other.CompareTag("Draggable"))
         {
             manager.OnPipeTriggered(this, other.transform);
+
+            //make the colour of the material red
+            GetComponent<Renderer>().material.color = Color.red;
+
+
         }
     }
 
@@ -24,6 +31,9 @@ public class PipeEnd : MonoBehaviour
         if(other.CompareTag("Draggable"))
         {
             manager.OnPipeExit();
+
+            //make the colour of the material white
+            GetComponent<Renderer>().material.color = Color.white;
         }
     }
 

@@ -21,7 +21,7 @@ public class DragManager : MonoBehaviour
     private bool _savedUseGravityState;
 
     // Distance and offset
-    private float _zDistance;
+    public  float _zDistance;
     private Vector3 _offset;
 
     // The position we want to move the rigidbody toward
@@ -29,6 +29,10 @@ public class DragManager : MonoBehaviour
 
 
     public event Action OnDragEnd;
+
+    // Min and max distances for clamping
+    [SerializeField] private float minZDistance = 7.0f;
+    [SerializeField] private float maxZDistance = 9.0f;
 
 
     // How fast scrolling moves the object forward/back
@@ -145,6 +149,9 @@ public class DragManager : MonoBehaviour
             // Adjust _zDistance to move the object forward or backward
             // Scroll up => positive scrollDelta => bring object closer (subtract from distance)
             // Scroll down => negative scrollDelta => push object farther (add to distance)
+
+            _zDistance = Mathf.Clamp(_zDistance, minZDistance, maxZDistance);
+
             _zDistance -= scrollDelta * scrollSensitivity;
         }
 

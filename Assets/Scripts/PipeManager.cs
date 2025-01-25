@@ -15,10 +15,28 @@ public class PipeManager : MonoBehaviour
     private Transform transportingGameObject;
     PipeEnd pipeToTransportTo = null;
 
+
+    public GameObject bubbleObject;
+
     public void OnPipeExit()
     {
         cooldown = false;
         dragManager.OnDragEnd -= OnPressEnd;
+    }
+
+
+    public void VRReleaseObject()
+    {
+
+        if (cooldown)
+        {
+            return;
+        }
+        transportingGameObject.position = pipeToTransportTo.spawnPoint.position + pipeToTransportTo.spawnDirecton;
+        StartCoroutine(waitABit());
+        transportingGameObject = null;
+
+
     }
 
     public void OnPipeTriggered(PipeEnd pipeEnd, Transform objectTransform)
@@ -42,12 +60,42 @@ public class PipeManager : MonoBehaviour
 
     }
 
+
+    private void SpawnBubbleWithItemInside()
+    {
+        //spawn a bubble
+        GameObject bubble = Instantiate(bubbleObject, pipeToTransportTo.spawnPoint.position, Quaternion.identity);
+
+        //add the spawnDirection to the bubble
+        bubble.GetComponent<Rigidbody>().velocity = pipeToTransportTo.spawnDirecton;
+
+        //spawn the transported object inside the bubble
+        //GameObject item = Instantiate(transportingGameObject.gameObject, bubble.transform.position, Quaternion.identity);
+
+        //transport the object to the center of the bubble
+        transportingGameObject.position = bubble.transform.position;
+        //set the parent of the object to the bubble
+        transportingGameObject.SetParent(bubble.transform);
+        //scale it down to fit inside the bubble
+        transportingGameObject.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+
+        //disable the rigidbody of the item
+        transportingGameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+        //disable the collider of the item
+        transportingGameObject.GetComponent<Collider>().enabled = false;
+
+
+    }
+
     public void OnPressEnd()
     {
 
 
         //transform the object to the destination of the pipe end +a small z  and have a cooldown so it doesn't teleport back and forth
-        transportingGameObject.position = pipeToTransportTo.destination.position + new Vector3(0, 0, -1f);
+        //transportingGameObject.position = pipeToTransportTo.destination.position + new Vector3(0, 0, -1f);
+
+        SpawnBubbleWithItemInside();
 
         //dragManager.endDragAfterTeleport();
 
