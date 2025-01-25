@@ -1,0 +1,60 @@
+{
+    "name": "PCPlayerInputActions",
+    "maps": [
+        {
+            "name": "PC Player",
+            "id": "b129d6cd-f6f2-4c7f-ad81-1c073f031285",
+            "actions": [
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "2162183b-09b0-432e-a97f-de029c53e4ce",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PointerPosition",
+                    "type": "Value",
+                    "id": "4e20a915-26fa-4462-90a6-e3d1acf88255",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "dfef78b7-af36-4325-b24b-ce5032c9ea03",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "85b0e80a-6def-4968-a6b6-b31800458190",
+                    "path": "<Pointer>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PointerPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "PC",
+            "bindingGroup": "PC",
+            "devices": []
+        }
+    ]
+}
