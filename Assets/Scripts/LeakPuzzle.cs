@@ -42,6 +42,8 @@ public class LeakPuzzle : PuzzleBase
     private ChromaticAberration chromaticAberration;
     private Vignette vignette;
 
+    private bool canDrain;
+
     private void Awake()
     {
         // Debug check
@@ -54,6 +56,8 @@ public class LeakPuzzle : PuzzleBase
         
         // Initialize leak point renderers array
         leakPointRenderers = new MeshRenderer[leakPoints.Length];
+
+        canDrain = false; // Can't drain the water
         
         // Get and disable all leak point renderers initially
         for (int i = 0; i < leakPoints.Length; i++)
@@ -205,6 +209,37 @@ public class LeakPuzzle : PuzzleBase
         yield return null;
     }
 
+    // Quicky lower the water
+    private IEnumerator LowerWater()
+    {
+        //Define constraints
+        int time = 5;
+        float startY = waterPlane.transform.position.y;
+        float endY = -0.2f;
+
+        float distPerSec = (endY - startY) / time;
+        float xPos = waterPlane.transform.position.x;
+        float zPos = waterPlane.transform.position.z;
+
+        while (waterPlane.transform.position.y > endY)
+        {
+            waterPlane.transform.position = new Vector3(xPos, waterPlane.transform.position.y + distPerSec / 10, zPos);
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        Debug.Log("Finished Water Draining!");
+        yield return null;
+    }
+
+    // Drain the water if leak stopped
+    public void DrainWater()
+    {
+        if (canDrain)
+        {
+            StartCoroutine("LowerWater");
+        }
+    }
+
 
 
     private void SpawnNewMetalSheet()
@@ -308,6 +343,11 @@ public class LeakPuzzle : PuzzleBase
                 leakParticleSystems[i].Stop();
             }
         }
+
+        // Stop water filling
+        StopCoroutine("RaiseWater");
+
+        canDrain = true; // Determines if the button can drain the water
 
         base.CompletePuzzle();
         Debug.Log("Leak Puzzle Completed!");
