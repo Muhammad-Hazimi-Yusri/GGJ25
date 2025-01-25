@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using System.Collections;
 
 public class LeakPuzzle : PuzzleBase
 {
@@ -103,7 +104,9 @@ public class LeakPuzzle : PuzzleBase
     {
         // Create a new GameObject for particles at the leak position
         GameObject particleObj = new GameObject($"LeakParticles_{index}");
-        particleObj.transform.position = leakAudioSources[index].transform.position;
+        particleObj.transform.position = leakPoints[index].transform.position;
+        // Rotate particles to face upwards of the leak point plane
+        particleObj.transform.rotation = Quaternion.LookRotation(leakPoints[index].transform.up);
         particleObj.transform.SetParent(leakAudioSources[index].transform);
 
         // Add and configure particle system
@@ -168,7 +171,8 @@ public class LeakPuzzle : PuzzleBase
         }
         else
         {
-            CompletePuzzle();
+            // Wait for placement sound to finish before completing puzzle
+            StartCoroutine(CompleteWithDelay());
         }
     }
 
@@ -211,6 +215,8 @@ public class LeakPuzzle : PuzzleBase
 
 
                 
+                // Destroy the interactable
+                Destroy(currentMetalSheet.gameObject);
                 OnMetalSheetPlaced(true);
             }
         }
@@ -262,6 +268,13 @@ public class LeakPuzzle : PuzzleBase
             currentLeakIndex++;
             StartCurrentLeak();
         }
+    }
+
+    private IEnumerator CompleteWithDelay()
+    {
+        // Wait for placement sound to finish (adjust time as needed based on your sound clip length)
+        yield return new WaitForSeconds(1.5f);
+        CompletePuzzle();
     }
 
     public override void CompletePuzzle()
