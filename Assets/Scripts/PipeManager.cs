@@ -69,6 +69,15 @@ public class PipeManager : MonoBehaviour
         //add the spawnDirection to the bubble
         bubble.GetComponent<Rigidbody>().velocity = pipeToTransportTo.spawnDirecton;
 
+        //get the BubblePopper script from the bubble
+        BubblePopper bubblePopper = bubble.GetComponent<BubblePopper>();
+
+        //set the original object to the object that is being transported
+        bubblePopper.originalObject = transportingGameObject.gameObject;
+
+        //set the original scale to the scale of the object being transported
+        bubblePopper.originalScale = transportingGameObject.localScale;
+
         //spawn the transported object inside the bubble
         //GameObject item = Instantiate(transportingGameObject.gameObject, bubble.transform.position, Quaternion.identity);
 

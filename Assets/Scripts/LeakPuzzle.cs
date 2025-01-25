@@ -44,16 +44,18 @@ public class LeakPuzzle : PuzzleBase
 
     private bool canDrain;
 
-    private void Awake()
-    {
-        // Debug check
-        Debug.Log($"Found {leakAudioSources.Length} leak audio sources");
-    }
+    //private void Awake()
+    //{
+    //    // Debug check
+    //    Debug.Log($"Found {leakAudioSources.Length} leak audio sources");
+    //}
     
-    protected override void Start()
+    private  void Awake()
     {
         base.Start();
         
+        Debug.Log("Leak Puzzle Started!");
+
         // Initialize leak point renderers array
         leakPointRenderers = new MeshRenderer[leakPoints.Length];
 
