@@ -10,6 +10,10 @@ public class LeakPuzzle : PuzzleBase
     [Header("Audio Clips")]
     [SerializeField] private AudioClip waterLeakSound;
     [SerializeField] private AudioClip metalPlacementSound;
+
+    [Header("Leak Effects")]
+    [SerializeField] private ParticleSystem[] leakParticleSystems; // Array to match leakAudioSources
+    [SerializeField] private Material bubbleMaterial; // Your bubble shader material
     
     [Header("Metal Sheet Settings")]
     [SerializeField] private GameObject metalSheetPrefab;
@@ -46,6 +50,18 @@ public class LeakPuzzle : PuzzleBase
             }
         }
 
+        // Setup particles
+        for(int i = 0; i < leakAudioSources.Length; i++)
+        {
+            if (leakParticleSystems[i] == null)
+            {
+                // Create particle system if it doesn't exist
+                CreateLeakParticles(i);
+            }
+            // Stop all particles initially
+            leakParticleSystems[i].Stop();
+        }
+        
         // Start the puzzle
         InitializePuzzle();
     }
@@ -58,6 +74,42 @@ public class LeakPuzzle : PuzzleBase
         StartCurrentLeak();
     }
 
+    private void CreateLeakParticles(int index)
+    {
+        // Create a new GameObject for particles at the leak position
+        GameObject particleObj = new GameObject($"LeakParticles_{index}");
+        particleObj.transform.position = leakAudioSources[index].transform.position;
+        particleObj.transform.SetParent(leakAudioSources[index].transform);
+
+        // Add and configure particle system
+        ParticleSystem ps = particleObj.AddComponent<ParticleSystem>();
+        leakParticleSystems[index] = ps;
+
+        // Get particle system components
+        var main = ps.main;
+        var emission = ps.emission;
+        var shape = ps.shape;
+        var renderer = ps.GetComponent<ParticleSystemRenderer>();
+
+        // Configure main module
+        main.startLifetime = 2f;
+        main.startSpeed = 1f;
+        main.startSize = 0.05f;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+        // Configure emission
+        emission.rateOverTime = 50;
+
+        // Configure shape
+        shape.shapeType = ParticleSystemShapeType.Cone;
+        shape.angle = 30f;
+        shape.radius = 0.1f;
+
+        // Configure renderer
+        renderer.material = bubbleMaterial;
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+    }
+
     private void StartCurrentLeak()
     {
         Debug.Log($"Starting leak {currentLeakIndex}");
@@ -67,6 +119,8 @@ public class LeakPuzzle : PuzzleBase
             {
                 Debug.Log($"Playing audio for leak {currentLeakIndex}");
                 leakAudioSources[currentLeakIndex].Play();
+                // Start particles
+                leakParticleSystems[currentLeakIndex].Play();
                 SpawnNewMetalSheet();
             }
             else
@@ -131,7 +185,8 @@ public class LeakPuzzle : PuzzleBase
         {
             // Stop current leak sound
             leakAudioSources[currentLeakIndex].Stop();
-            
+            // Stop particles
+            leakParticleSystems[currentLeakIndex].Stop();
             // Move to next leak
             currentLeakIndex++;
             StartCurrentLeak();
@@ -140,11 +195,16 @@ public class LeakPuzzle : PuzzleBase
 
     public override void CompletePuzzle()
     {
-        foreach (var leakSource in leakAudioSources)
+        // Stop all audio and particles
+        for(int i = 0; i < leakAudioSources.Length; i++)
         {
-            if (leakSource != null)
+            if (leakAudioSources[i] != null)
             {
-                leakSource.Stop();
+                leakAudioSources[i].Stop();
+            }
+            if (leakParticleSystems[i] != null)
+            {
+                leakParticleSystems[i].Stop();
             }
         }
         
