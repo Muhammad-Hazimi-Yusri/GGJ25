@@ -4,7 +4,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class LeakPuzzle : PuzzleBase
 {
     [Header("Audio Sources")]
-    [SerializeField] private AudioSource[] leakAudioSources;  // These will also serve as leak points
+    [SerializeField] private AudioSource[] leakAudioSources;
     [SerializeField] private AudioSource effectsAudioSource;
     
     [Header("Audio Clips")]
@@ -13,39 +13,66 @@ public class LeakPuzzle : PuzzleBase
     
     [Header("Metal Sheet Settings")]
     [SerializeField] private GameObject metalSheetPrefab;
-    [SerializeField] private Transform spawnPoint;  // Where metal sheets appear from tube
+    [SerializeField] private Transform spawnPoint;
     [SerializeField] private float placementSnapDistance = 0.2f;
     
     private int currentLeakIndex = 0;
     private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable currentMetalSheet;
+
+    private void Awake()
+    {
+        // Debug check
+        Debug.Log($"Found {leakAudioSources.Length} leak audio sources");
+    }
     
     protected override void Start()
     {
+        base.Start();
+        
+        // Setup each audio source
         foreach (var leakSource in leakAudioSources)
         {
             if (leakSource != null)
             {
+                Debug.Log($"Setting up leak source at {leakSource.transform.position}");
                 leakSource.clip = waterLeakSound;
                 leakSource.loop = true;
                 leakSource.spatialBlend = 1f;
-                leakSource.Stop();
+                leakSource.Stop(); // Make sure it starts stopped
+            }
+            else
+            {
+                Debug.LogError("Null leak audio source found!");
             }
         }
+
+        // Start the puzzle
+        InitializePuzzle();
     }
 
     public override void InitializePuzzle()
     {
         base.InitializePuzzle();
+        Debug.Log("Initializing Puzzle");
         currentLeakIndex = 0;
         StartCurrentLeak();
     }
 
     private void StartCurrentLeak()
     {
+        Debug.Log($"Starting leak {currentLeakIndex}");
         if (currentLeakIndex < leakAudioSources.Length)
         {
-            leakAudioSources[currentLeakIndex].Play();
-            SpawnNewMetalSheet();
+            if (leakAudioSources[currentLeakIndex] != null)
+            {
+                Debug.Log($"Playing audio for leak {currentLeakIndex}");
+                leakAudioSources[currentLeakIndex].Play();
+                SpawnNewMetalSheet();
+            }
+            else
+            {
+                Debug.LogError($"Leak audio source {currentLeakIndex} is null!");
+            }
         }
         else
         {
