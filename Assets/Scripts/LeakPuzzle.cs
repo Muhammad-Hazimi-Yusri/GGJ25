@@ -6,6 +6,7 @@ public class LeakPuzzle : PuzzleBase
     [Header("Leak Setup")]
     [SerializeField] private Transform[] leakPoints; 
     [SerializeField] private AudioSource[] leakAudioSources;
+    [SerializeField] private GameObject[] metalSheets;
     private MeshRenderer[] leakPointRenderers;  // Store reference to leak point renderers
     
     [Header("Audio Clips")]
@@ -181,15 +182,17 @@ public class LeakPuzzle : PuzzleBase
             if (distanceToLeak < placementSnapDistance)
             {
                 // Snap to leak point position and rotation
-                currentMetalSheet.transform.position = currentLeakPoint.position;
-                currentMetalSheet.transform.rotation = currentLeakPoint.rotation;
+                //currentMetalSheet.transform.position = currentLeakPoint.position;
+                //currentMetalSheet.transform.rotation = currentLeakPoint.rotation;
                 
                 // Disable interaction and set kinematic
-                currentMetalSheet.enabled = false;
-                if (currentMetalSheet.GetComponent<Rigidbody>() is Rigidbody rb)
-                {
-                    rb.isKinematic = true;
-                }
+                //currentMetalSheet.enabled = false;
+                //if (currentMetalSheet.GetComponent<Rigidbody>() is Rigidbody rb)
+                //{
+                //    rb.isKinematic = true;
+                //}
+
+
                 
                 OnMetalSheetPlaced(true);
             }
@@ -224,6 +227,11 @@ public class LeakPuzzle : PuzzleBase
             if (leakPointRenderers[currentLeakIndex] != null)
             {
                 leakPointRenderers[currentLeakIndex].enabled = false;
+            }
+
+            if (metalSheets[currentLeakIndex] != null)
+            {
+                metalSheets[currentLeakIndex].SetActive(true);
             }
             
             // Move to next leak
