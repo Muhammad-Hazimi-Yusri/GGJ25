@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class LeakPuzzle : PuzzleBase
 {
     [Header("Audio Sources")]
-    [SerializeField] private AudioSource[] leakAudioSources;
+    [SerializeField] private AudioSource[] leakAudioSources;  // These will also serve as leak points
     [SerializeField] private AudioSource effectsAudioSource;
     
     [Header("Audio Clips")]
@@ -11,13 +12,12 @@ public class LeakPuzzle : PuzzleBase
     [SerializeField] private AudioClip metalPlacementSound;
     
     [Header("Metal Sheet Settings")]
-    [SerializeField] private Transform[] leakPoints;  // Positions where leaks/metal sheets should go
-    [SerializeField] private GameObject metalSheetPrefab;  // Your metal sheet prefab
-    [SerializeField] private float placementSnapDistance = 0.2f;  // How close sheet needs to be to snap
+    [SerializeField] private GameObject metalSheetPrefab;
+    [SerializeField] private Transform spawnPoint;  // Where metal sheets appear from tube
+    [SerializeField] private float placementSnapDistance = 0.2f;
     
     private int currentLeakIndex = 0;
-    private GameObject currentMetalSheet;
-    private bool isHoldingSheet = false;
+    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable currentMetalSheet;
     
     protected override void Start()
     {
@@ -55,44 +55,40 @@ public class LeakPuzzle : PuzzleBase
 
     private void SpawnNewMetalSheet()
     {
-        // Spawn metal sheet at your designated spawn point
-        // This position should be where the mermaid's tube outputs items
-        Vector3 spawnPoint = new Vector3(0, 0.3, 2.5); // Adjust this to your spawn point
-        currentMetalSheet = Instantiate(metalSheetPrefab, spawnPoint, Quaternion.identity);
-    }
-
-    // Call this from your VR input system when grab button is pressed
-    public void OnGrabSheet()
-    {
-        if (currentMetalSheet != null && Vector3.Distance(GetControllerPosition(), currentMetalSheet.transform.position) < placementSnapDistance)
+        GameObject sheetObj = Instantiate(metalSheetPrefab, spawnPoint.position, spawnPoint.rotation);
+        currentMetalSheet = sheetObj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        
+        if (currentMetalSheet != null)
         {
-            isHoldingSheet = true;
-            // Attach sheet to VR controller
-            currentMetalSheet.transform.SetParent(GetControllerTransform());
-            currentMetalSheet.transform.localPosition = Vector3.zero;
+            // Subscribe to select/deselect events
+            currentMetalSheet.selectExited.AddListener(OnSheetReleased);
         }
     }
 
-    // Call this from your VR input system when grab button is released
-    public void OnReleaseSheet()
+    private void OnSheetReleased(SelectExitEventArgs args)
     {
-        if (isHoldingSheet && currentMetalSheet != null)
+        if (currentMetalSheet != null)
         {
-            isHoldingSheet = false;
-            currentMetalSheet.transform.SetParent(null);
-            
             // Check if near current leak point
-            if (Vector3.Distance(currentMetalSheet.transform.position, leakPoints[currentLeakIndex].position) < placementSnapDistance)
+            float distanceToLeak = Vector3.Distance(
+                currentMetalSheet.transform.position, 
+                leakAudioSources[currentLeakIndex].transform.position
+            );
+
+            if (distanceToLeak < placementSnapDistance)
             {
                 // Correct placement
-                currentMetalSheet.transform.position = leakPoints[currentLeakIndex].position;
-                currentMetalSheet.transform.rotation = leakPoints[currentLeakIndex].rotation;
+                currentMetalSheet.transform.position = leakAudioSources[currentLeakIndex].transform.position;
+                currentMetalSheet.transform.rotation = leakAudioSources[currentLeakIndex].transform.rotation;
+                
+                // Disable further interaction with this sheet
+                currentMetalSheet.enabled = false;
+                if (currentMetalSheet.GetComponent<Rigidbody>() is Rigidbody rb)
+                {
+                    rb.isKinematic = true;
+                }
+                
                 OnMetalSheetPlaced(true);
-            }
-            else
-            {
-                // Wrong placement
-                OnMetalSheetPlaced(false);
             }
         }
     }
@@ -113,19 +109,6 @@ public class LeakPuzzle : PuzzleBase
             currentLeakIndex++;
             StartCurrentLeak();
         }
-    }
-
-    // These methods need to be implemented based on your VR system (Oculus, SteamVR, etc.)
-    private Vector3 GetControllerPosition()
-    {
-        // Return your VR controller position
-        return Vector3.zero; // Implement this
-    }
-
-    private Transform GetControllerTransform()
-    {
-        // Return your VR controller transform
-        return null; // Implement this
     }
 
     public override void CompletePuzzle()
