@@ -117,7 +117,6 @@ public class LeakPuzzle : PuzzleBase
 
     public override void InitializePuzzle()
     {
-        base.InitializePuzzle();
         Debug.Log("Initializing Puzzle");
         currentLeakIndex = 0;
         StartCurrentLeak();
