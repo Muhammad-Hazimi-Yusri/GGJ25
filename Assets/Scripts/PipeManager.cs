@@ -80,7 +80,7 @@ public class PipeManager : MonoBehaviour
         transportingGameObject.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
         //disable the rigidbody of the item
-        //transportingGameObject.GetComponent<Rigidbody>().isKinematic = true;
+        transportingGameObject.GetComponent<Rigidbody>().isKinematic = true;
 
         //disable the collider of the item
         transportingGameObject.GetComponent<Collider>().enabled = false;

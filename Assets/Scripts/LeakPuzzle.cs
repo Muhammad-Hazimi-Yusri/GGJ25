@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class LeakPuzzle : PuzzleBase
 {
@@ -9,7 +11,13 @@ public class LeakPuzzle : PuzzleBase
     [SerializeField] private AudioSource[] leakAudioSources;
     [SerializeField] private GameObject[] waterParticles;
     [SerializeField] private GameObject[] metalSheets;
+    [SerializeField] private GameObject waterPlane;
+    [SerializeField] private Volume postProcessing;
+    [SerializeField] private Camera playerCam;
     private MeshRenderer[] leakPointRenderers;  // Store reference to leak point renderers
+
+    [Header("Player Settings")]
+    [SerializeField, Range(5,30)] private float timeToLive; // Length of time the player can be underwater before they die
     
     [Header("Audio Clips")]
     [SerializeField] private AudioClip waterLeakSound;
@@ -25,7 +33,14 @@ public class LeakPuzzle : PuzzleBase
     [SerializeField] private float placementSnapDistance = 0.2f;
     
     private int currentLeakIndex = 0;
+    private float breathCounter; // Counter to track time left being able to breathe
     private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable currentMetalSheet;
+
+    // Handle post processing
+    private ChannelMixer channelMixer;
+    private ColorAdjustments colourAdjustments;
+    private ChromaticAberration chromaticAberration;
+    private Vignette vignette;
 
     private void Awake()
     {
@@ -73,19 +88,31 @@ public class LeakPuzzle : PuzzleBase
             }
         }
 
-        /*
-        // Setup particles
-        for(int i = 0; i < leakAudioSources.Length; i++)
+        // Get post processing effects
+        if (postProcessing.profile.TryGet<ChannelMixer>(out channelMixer)) Debug.Log("Channel Mixer Found!");
+        if (postProcessing.profile.TryGet<ColorAdjustments>(out colourAdjustments)) Debug.Log("Colour Adjustments Found!");
+        if (postProcessing.profile.TryGet<ChromaticAberration>(out chromaticAberration)) Debug.Log("Chromatic Aberration Found!");
+        if (postProcessing.profile.TryGet<Vignette>(out vignette)) Debug.Log("Vignette Found!");
+        
+        // Start the puzzle
+        InitializePuzzle();
+    }
+
+    private void Update()
+    {
+        // Handle player being underwater
+        if (playerCam.transform.position.y <= waterPlane.transform.position.y)
         {
-            if (leakParticleSystems[i] == null)
-            {
-                // Create particle system if it doesn't exist
-                CreateLeakParticles(i);
-            }
-            // Stop all particles initially
-            leakParticleSystems[i].Stop();
+            HandleBreath(); // Handle player breathing and death
+            ToggleWaterEffect(true);
         }
-        */
+        else
+        {
+            vignette.intensity.value = 0f;
+            vignette.active = false;
+            breathCounter = timeToLive; // Reset breathe counter
+            ToggleWaterEffect(false);
+        }
     }
 
     public override void InitializePuzzle()
@@ -93,47 +120,8 @@ public class LeakPuzzle : PuzzleBase
         Debug.Log("Initializing Puzzle");
         currentLeakIndex = 0;
         StartCurrentLeak();
+        StartCoroutine("RaiseWater");
     }
-
-    /*
-    private void CreateLeakParticles(int index)
-    {
-        // Create a new GameObject for particles at the leak position
-        GameObject particleObj = new GameObject($"LeakParticles_{index}");
-        particleObj.transform.position = leakPoints[index].transform.position;
-        // Rotate particles to face upwards of the leak point plane
-        particleObj.transform.rotation = Quaternion.LookRotation(leakPoints[index].transform.up);
-        particleObj.transform.SetParent(leakAudioSources[index].transform);
-
-        // Add and configure particle system
-        ParticleSystem ps = particleObj.AddComponent<ParticleSystem>();
-        leakParticleSystems[index] = ps;
-
-        // Get particle system components
-        var main = ps.main;
-        var emission = ps.emission;
-        var shape = ps.shape;
-        var renderer = ps.GetComponent<ParticleSystemRenderer>();
-
-        // Configure main module
-        main.startLifetime = 2f;
-        main.startSpeed = 1f;
-        main.startSize = 0.05f;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-
-        // Configure emission
-        emission.rateOverTime = 50;
-
-        // Configure shape
-        shape.shapeType = ParticleSystemShapeType.Cone;
-        shape.angle = 30f;
-        shape.radius = 0.1f;
-
-        // Configure renderer
-        renderer.material = bubbleMaterial;
-        renderer.renderMode = ParticleSystemRenderMode.Billboard;
-    }
-    */
 
     private void StartCurrentLeak()
     {
@@ -172,6 +160,55 @@ public class LeakPuzzle : PuzzleBase
         }
     }
 
+    // Toggle underwater effect on and off
+    private void ToggleWaterEffect(bool enable)
+    {
+        channelMixer.active = enable;
+        colourAdjustments.active = enable;
+        chromaticAberration.active = enable;
+    }
+
+    // Ensure breath is handled
+    private void HandleBreath()
+    {
+        breathCounter -= Time.deltaTime; // Decrease counter
+        //Debug.Log("Breath Counter: " + breathCounter);
+
+        if (!vignette.active) vignette.active = true;
+
+        float percentDead = (timeToLive - breathCounter) / timeToLive;
+        vignette.intensity.value = percentDead * 0.75f;
+
+        if (breathCounter <= 0)
+        {
+            Debug.Log("Player has died");
+        }
+    }
+
+    // Start Raising Water
+    private IEnumerator RaiseWater()
+    {
+        //Define constraints
+        int time = 60;
+        float startY = waterPlane.transform.position.y;
+        float endY = 4.2f;
+
+        float distPerSec = (endY - startY) / time;
+        float xPos = waterPlane.transform.position.x;
+        float zPos = waterPlane.transform.position.z;
+        
+        while (waterPlane.transform.position.y < endY)
+        {
+            waterPlane.transform.position = new Vector3(xPos, waterPlane.transform.position.y + distPerSec / 250, zPos);
+            yield return new WaitForSeconds(0.01f); 
+        }
+
+        Debug.Log("Finished Water Raise!");
+        yield return null;
+    }
+
+
+
     private void SpawnNewMetalSheet()
     {
         GameObject sheetObj = Instantiate(metalSheetPrefab, spawnPoint.position, spawnPoint.rotation);
@@ -198,20 +235,6 @@ public class LeakPuzzle : PuzzleBase
 
             if (distanceToLeak < placementSnapDistance)
             {
-                // Snap to leak point position and rotation
-                //currentMetalSheet.transform.position = currentLeakPoint.position;
-                //currentMetalSheet.transform.rotation = currentLeakPoint.rotation;
-                
-                // Disable interaction and set kinematic
-                //currentMetalSheet.enabled = false;
-                //if (currentMetalSheet.GetComponent<Rigidbody>() is Rigidbody rb)
-                //{
-                //    rb.isKinematic = true;
-                //}
-
-
-                
-                // Destroy the interactable
                 Destroy(currentMetalSheet.gameObject);
                 OnMetalSheetPlaced(true);
             }
