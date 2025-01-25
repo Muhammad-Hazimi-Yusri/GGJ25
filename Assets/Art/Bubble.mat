@@ -38,6 +38,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Add_alpha: 0
+    - _Bits: 7.23
     - _Blend_Opacity: 1.44
     - _Blend_Sharpness: 1
     - _Divide_Colour: 1
