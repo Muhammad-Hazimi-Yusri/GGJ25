@@ -86,14 +86,10 @@ public class LeakPuzzle : PuzzleBase
             leakParticleSystems[i].Stop();
         }
         */
-        
-        // Start the puzzle
-        InitializePuzzle();
     }
 
     public override void InitializePuzzle()
     {
-        base.InitializePuzzle();
         Debug.Log("Initializing Puzzle");
         currentLeakIndex = 0;
         StartCurrentLeak();

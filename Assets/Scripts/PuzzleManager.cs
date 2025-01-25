@@ -4,24 +4,9 @@ using System.Collections.Generic;
 
 public class PuzzleManager : MonoBehaviour
 {
-    private static PuzzleManager instance;
-    public static PuzzleManager Instance => instance;
 
     [SerializeField] private List<PuzzleBase> allPuzzles = new List<PuzzleBase>();
     private int currentPuzzleIndex = -1;
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
 
     private void Start()
     {
