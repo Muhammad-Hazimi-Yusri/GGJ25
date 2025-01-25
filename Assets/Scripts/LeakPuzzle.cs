@@ -202,16 +202,16 @@ public class LeakPuzzle : PuzzleBase
         
         if (correctPlacement)
         {
-            // Play placement sound
-            if (currentLeakSource != null && metalPlacementSound != null)
-            {
-                currentLeakSource.PlayOneShot(metalPlacementSound);
-            }
-
             // Stop current leak sound
             if (currentLeakSource != null)
             {
                 currentLeakSource.Stop();
+            }
+            
+            // Play placement sound
+            if (currentLeakSource != null && metalPlacementSound != null)
+            {
+                currentLeakSource.PlayOneShot(metalPlacementSound);
             }
 
             // Stop particles
@@ -246,7 +246,7 @@ public class LeakPuzzle : PuzzleBase
                 leakParticleSystems[i].Stop();
             }
         }
-        
+
         base.CompletePuzzle();
         Debug.Log("Leak Puzzle Completed!");
     }
