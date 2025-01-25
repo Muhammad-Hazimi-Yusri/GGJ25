@@ -6,6 +6,7 @@ public class LeakPuzzle : PuzzleBase
     [Header("Leak Setup")]
     [SerializeField] private Transform[] leakPoints; 
     [SerializeField] private AudioSource[] leakAudioSources;
+    private MeshRenderer[] leakPointRenderers;  // Store reference to leak point renderers
     
     [Header("Audio Clips")]
     [SerializeField] private AudioClip waterLeakSound;
@@ -33,6 +34,19 @@ public class LeakPuzzle : PuzzleBase
     {
         base.Start();
         
+        // Initialize leak point renderers array
+        leakPointRenderers = new MeshRenderer[leakPoints.Length];
+        
+        // Get and disable all leak point renderers initially
+        for (int i = 0; i < leakPoints.Length; i++)
+        {
+            leakPointRenderers[i] = leakPoints[i].GetComponent<MeshRenderer>();
+            if (leakPointRenderers[i] != null)
+            {
+                leakPointRenderers[i].enabled = false;
+            }
+        }
+
         // Setup each audio source
         foreach (var leakSource in leakAudioSources)
         {
@@ -115,6 +129,12 @@ public class LeakPuzzle : PuzzleBase
         Debug.Log($"Starting leak {currentLeakIndex}");
         if (currentLeakIndex < leakAudioSources.Length)
         {
+            // Enable current leak point renderer
+            if (leakPointRenderers[currentLeakIndex] != null)
+            {
+                leakPointRenderers[currentLeakIndex].enabled = true;
+            }
+
             if (leakAudioSources[currentLeakIndex] != null)
             {
                 Debug.Log($"Playing audio for leak {currentLeakIndex}");
@@ -178,19 +198,33 @@ public class LeakPuzzle : PuzzleBase
 
     private void OnMetalSheetPlaced(bool correctPlacement)
     {
-        // Play placement sound from the leak position
         AudioSource currentLeakSource = leakAudioSources[currentLeakIndex];
-        if (currentLeakSource != null && metalPlacementSound != null)
-        {
-            currentLeakSource.PlayOneShot(metalPlacementSound);
-        }
         
         if (correctPlacement)
         {
+            // Play placement sound
+            if (currentLeakSource != null && metalPlacementSound != null)
+            {
+                currentLeakSource.PlayOneShot(metalPlacementSound);
+            }
+
             // Stop current leak sound
-            currentLeakSource.Stop();
+            if (currentLeakSource != null)
+            {
+                currentLeakSource.Stop();
+            }
+
             // Stop particles
-            leakParticleSystems[currentLeakIndex].Stop();
+            if (leakParticleSystems[currentLeakIndex] != null)
+            {
+                leakParticleSystems[currentLeakIndex].Stop();
+            }
+
+            // Disable leak point renderer
+            if (leakPointRenderers[currentLeakIndex] != null)
+            {
+                leakPointRenderers[currentLeakIndex].enabled = false;
+            }
             
             // Move to next leak
             currentLeakIndex++;
