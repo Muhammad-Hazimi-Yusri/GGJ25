@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DitherMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 460f657e2f7ec4145a2930f758954001, type: 3}
+  m_Name: DitherMat
+  m_Shader: {fileID: -6465566751694194690, guid: 0e68d29835b2f2a47b91f08072367202, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -37,7 +37,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ColourResolution: 15
-    - _DitherSpread: 0.075
+    - _ColourResolution: 100
+    - _DitherSpread: 0.1
     m_Colors: []
   m_BuildTextureStacks: []
