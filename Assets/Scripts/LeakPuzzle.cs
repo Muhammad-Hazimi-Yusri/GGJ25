@@ -3,17 +3,17 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class LeakPuzzle : PuzzleBase
 {
-    [Header("Audio Sources")]
+    [Header("Leak Setup")]
+    [SerializeField] private Transform[] leakPoints; 
     [SerializeField] private AudioSource[] leakAudioSources;
-    [SerializeField] private AudioSource effectsAudioSource;
     
     [Header("Audio Clips")]
     [SerializeField] private AudioClip waterLeakSound;
     [SerializeField] private AudioClip metalPlacementSound;
 
     [Header("Leak Effects")]
-    [SerializeField] private ParticleSystem[] leakParticleSystems; // Array to match leakAudioSources
-    [SerializeField] private Material bubbleMaterial; // Your bubble shader material
+    [SerializeField] private ParticleSystem[] leakParticleSystems; 
+    [SerializeField] private Material bubbleMaterial; 
     
     [Header("Metal Sheet Settings")]
     [SerializeField] private GameObject metalSheetPrefab;
@@ -150,19 +150,21 @@ public class LeakPuzzle : PuzzleBase
     {
         if (currentMetalSheet != null)
         {
-            // Check if near current leak point
+            Transform currentLeakPoint = leakPoints[currentLeakIndex];
+            
+            // Check distance to current leak point
             float distanceToLeak = Vector3.Distance(
                 currentMetalSheet.transform.position, 
-                leakAudioSources[currentLeakIndex].transform.position
+                currentLeakPoint.position
             );
 
             if (distanceToLeak < placementSnapDistance)
             {
-                // Correct placement
-                currentMetalSheet.transform.position = leakAudioSources[currentLeakIndex].transform.position;
-                currentMetalSheet.transform.rotation = leakAudioSources[currentLeakIndex].transform.rotation;
+                // Snap to leak point position and rotation
+                currentMetalSheet.transform.position = currentLeakPoint.position;
+                currentMetalSheet.transform.rotation = currentLeakPoint.rotation;
                 
-                // Disable further interaction with this sheet
+                // Disable interaction and set kinematic
                 currentMetalSheet.enabled = false;
                 if (currentMetalSheet.GetComponent<Rigidbody>() is Rigidbody rb)
                 {
@@ -176,17 +178,20 @@ public class LeakPuzzle : PuzzleBase
 
     private void OnMetalSheetPlaced(bool correctPlacement)
     {
-        if (effectsAudioSource != null && metalPlacementSound != null)
+        // Play placement sound from the leak position
+        AudioSource currentLeakSource = leakAudioSources[currentLeakIndex];
+        if (currentLeakSource != null && metalPlacementSound != null)
         {
-            effectsAudioSource.PlayOneShot(metalPlacementSound);
+            currentLeakSource.PlayOneShot(metalPlacementSound);
         }
         
         if (correctPlacement)
         {
             // Stop current leak sound
-            leakAudioSources[currentLeakIndex].Stop();
+            currentLeakSource.Stop();
             // Stop particles
             leakParticleSystems[currentLeakIndex].Stop();
+            
             // Move to next leak
             currentLeakIndex++;
             StartCurrentLeak();
