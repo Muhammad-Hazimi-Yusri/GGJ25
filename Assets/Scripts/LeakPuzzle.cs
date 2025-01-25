@@ -6,6 +6,7 @@ public class LeakPuzzle : PuzzleBase
     [Header("Leak Setup")]
     [SerializeField] private Transform[] leakPoints; 
     [SerializeField] private AudioSource[] leakAudioSources;
+    [SerializeField] private GameObject[] waterParticles;
     [SerializeField] private GameObject[] metalSheets;
     private MeshRenderer[] leakPointRenderers;  // Store reference to leak point renderers
     
@@ -48,6 +49,12 @@ public class LeakPuzzle : PuzzleBase
             }
         }
 
+        // Get and disable all water effets initially
+        for (int i = 0; i < waterParticles.Length; i++)
+        {
+            waterParticles[i].SetActive(false);
+        }
+
         // Setup each audio source
         foreach (var leakSource in leakAudioSources)
         {
@@ -65,6 +72,7 @@ public class LeakPuzzle : PuzzleBase
             }
         }
 
+        /*
         // Setup particles
         for(int i = 0; i < leakAudioSources.Length; i++)
         {
@@ -76,6 +84,7 @@ public class LeakPuzzle : PuzzleBase
             // Stop all particles initially
             leakParticleSystems[i].Stop();
         }
+        */
         
         // Start the puzzle
         InitializePuzzle();
@@ -89,6 +98,7 @@ public class LeakPuzzle : PuzzleBase
         StartCurrentLeak();
     }
 
+    /*
     private void CreateLeakParticles(int index)
     {
         // Create a new GameObject for particles at the leak position
@@ -124,6 +134,7 @@ public class LeakPuzzle : PuzzleBase
         renderer.material = bubbleMaterial;
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
     }
+    */
 
     private void StartCurrentLeak()
     {
@@ -136,12 +147,18 @@ public class LeakPuzzle : PuzzleBase
                 leakPointRenderers[currentLeakIndex].enabled = true;
             }
 
+            if (waterParticles[currentLeakIndex] != null)
+            {
+                Debug.Log("Starting leak water effect!");
+                waterParticles[currentLeakIndex].SetActive(true);
+            }
+
             if (leakAudioSources[currentLeakIndex] != null)
             {
                 Debug.Log($"Playing audio for leak {currentLeakIndex}");
                 leakAudioSources[currentLeakIndex].Play();
                 // Start particles
-                leakParticleSystems[currentLeakIndex].Play();
+                //leakParticleSystems[currentLeakIndex].Play();
                 SpawnNewMetalSheet();
             }
             else
@@ -229,6 +246,13 @@ public class LeakPuzzle : PuzzleBase
                 leakPointRenderers[currentLeakIndex].enabled = false;
             }
 
+            // Disable water particle effect
+            if (waterParticles[currentLeakIndex] != null)
+            {
+                waterParticles[currentLeakIndex].SetActive(false);
+            }
+
+            // Show metal sheet fixed
             if (metalSheets[currentLeakIndex] != null)
             {
                 metalSheets[currentLeakIndex].SetActive(true);
