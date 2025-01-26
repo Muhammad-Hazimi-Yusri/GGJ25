@@ -2726,11 +2726,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6faeb4e3b1e8b144f8ffff99faba4d03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Slider: {fileID: 1421659755}
+  slider: {fileID: 1421659755}
   minAngle: 0
   maxAngle: 360
+  clampRotation: 0
   randomnessStrength: 5
   randomnessSpeed: 2
+  useRandomness: 1
 --- !u!114 &1421659755 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2023999244769595230, guid: 265b63de440005746862bf710bc008fe, type: 3}
@@ -4418,11 +4420,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6faeb4e3b1e8b144f8ffff99faba4d03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Slider: {fileID: 1951298957}
+  slider: {fileID: 1951298957}
   minAngle: 0
   maxAngle: 360
+  clampRotation: 1
   randomnessStrength: 5
   randomnessSpeed: 2
+  useRandomness: 1
 --- !u!1 &1796306817
 GameObject:
   m_ObjectHideFlags: 0
@@ -4884,11 +4888,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6faeb4e3b1e8b144f8ffff99faba4d03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Slider: {fileID: 1855046151}
+  slider: {fileID: 1855046151}
   minAngle: 0
   maxAngle: 360
+  clampRotation: 0
   randomnessStrength: 5
   randomnessSpeed: 2
+  useRandomness: 1
 --- !u!114 &1951298957 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8426788163322722858, guid: 265b63de440005746862bf710bc008fe, type: 3}
@@ -5063,15 +5069,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
-  slider1: {fileID: 1951298957}
-  slider2: {fileID: 1855046151}
-  slider3: {fileID: 1421659755}
+  puzzleManager: {fileID: 105409798}
   gaugePivot1: {fileID: 1765912466}
   gaugePivot2: {fileID: 1898079466}
   gaugePivot3: {fileID: 1387937561}
-  gauge1Range: {x: 0, y: 270}
-  gauge2Range: {x: 0, y: 140}
-  gauge3Range: {x: 0, y: 40}
+  gauge1Range: {x: 90, y: 360}
+  gauge2Range: {x: 90, y: 230}
+  gauge3Range: {x: 80, y: 140}
   maxRandomnessStrength1: 45
   maxRandomnessStrength2: 30
   maxRandomnessStrength3: 15

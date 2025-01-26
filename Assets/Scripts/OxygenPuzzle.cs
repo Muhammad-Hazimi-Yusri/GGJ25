@@ -1,31 +1,26 @@
 using UnityEngine;
-using UnityEngine.XR.Content.Interaction;
 
-public class OxygenPuzzle : PuzzleBase
+public class ModifiedOxygenPuzzle : PuzzleBase
 {
-    [Header("Sliders")]
-    [SerializeField] private XRSlider slider1;
-    [SerializeField] private XRSlider slider2;
-    [SerializeField] private XRSlider slider3;
+    [SerializeField] private PuzzleManager puzzleManager;
 
-    [Header("Gauge Rotations")]
-    [SerializeField] private GaugePivotRotation gaugePivot1;
-    [SerializeField] private GaugePivotRotation gaugePivot2;
-    [SerializeField] private GaugePivotRotation gaugePivot3;
+    [Header("Gauge References")]
+    [SerializeField] private ModifiedGaugeRotation gaugePivot1;
+    [SerializeField] private ModifiedGaugeRotation gaugePivot2;
+    [SerializeField] private ModifiedGaugeRotation gaugePivot3;
 
-    [Header("Target Zones (Unity Rotation)")]
-    [SerializeField] private Vector2 gauge1Range = new Vector2(0f, 270f);   // Maps to your 90-360
-    [SerializeField] private Vector2 gauge2Range = new Vector2(0f, 140f);   // Maps to your 90-230
-    [SerializeField] private Vector2 gauge3Range = new Vector2(0f, 40f);    // Maps to your 90-130
+    [Header("Target Ranges")]
+    [SerializeField] private Vector2 gauge1Range = new Vector2(90f, 360f);
+    [SerializeField] private Vector2 gauge2Range = new Vector2(90f, 230f);
+    [SerializeField] private Vector2 gauge3Range = new Vector2(80f, 140f);
 
-    [Header("Randomness Settings")]
+    [Header("Difficulty Settings")]
     [SerializeField] private float maxRandomnessStrength1 = 45f;
     [SerializeField] private float maxRandomnessStrength2 = 30f;
     [SerializeField] private float maxRandomnessStrength3 = 15f;
     [SerializeField] private float maxRandomnessSpeed = 3f;
     [SerializeField] private float difficultyRampUpTime = 20f;
 
-    private bool hasPlayerMovedSliders = false;
     private float puzzleStartTime;
     private bool isCheckingCompletion = false;
 
@@ -36,49 +31,29 @@ public class OxygenPuzzle : PuzzleBase
 
     private void SetInitialState()
     {
-        slider1.value = 0.5f;
-        slider2.value = 0.45f;
-        slider3.value = 0.3f;
         SetAllRandomness(0.1f, 0.5f);
-        hasPlayerMovedSliders = false;
     }
 
     public override void InitializePuzzle()
     {
         base.InitializePuzzle();
-        
-        slider1.value = 0.1f;
-        slider2.value = 0.9f;
-        slider3.value = 0.7f;
-
         puzzleStartTime = Time.time;
         isCheckingCompletion = true;
-        hasPlayerMovedSliders = false;
         
-        Debug.Log("Oxygen Puzzle Started - Using Unity rotation system");
+        // Enable randomness on all gauges
+        gaugePivot1.EnableRandomness(true);
+        gaugePivot2.EnableRandomness(true);
+        gaugePivot3.EnableRandomness(true);
+        
+        Debug.Log("Oxygen Puzzle Started");
     }
 
     private void Update()
     {
         if (currentState != PuzzleState.InProgress) return;
 
-        CheckForPlayerInput();
         UpdateDifficulty();
         CheckPuzzleCompletion();
-    }
-
-    private void CheckForPlayerInput()
-    {
-        if (!hasPlayerMovedSliders)
-        {
-            if (Mathf.Abs(slider1.value - 0.1f) > 0.01f ||
-                Mathf.Abs(slider2.value - 0.9f) > 0.01f ||
-                Mathf.Abs(slider3.value - 0.7f) > 0.01f)
-            {
-                hasPlayerMovedSliders = true;
-                Debug.Log("Player started moving sliders!");
-            }
-        }
     }
 
     private void UpdateDifficulty()
@@ -105,44 +80,35 @@ public class OxygenPuzzle : PuzzleBase
 
     private void CheckPuzzleCompletion()
     {
-        if (!isCheckingCompletion || !hasPlayerMovedSliders) return;
+        if (!isCheckingCompletion) return;
 
-        float angle1 = gaugePivot1.transform.rotation.eulerAngles.x;
-        float angle2 = gaugePivot2.transform.rotation.eulerAngles.x;
-        float angle3 = gaugePivot3.transform.rotation.eulerAngles.x;
+        bool gauge1InRange = gaugePivot1.IsAngleInRange(gauge1Range);
+        bool gauge2InRange = gaugePivot2.IsAngleInRange(gauge2Range);
+        bool gauge3InRange = gaugePivot3.IsAngleInRange(gauge3Range);
 
-        bool allInTargetZone = 
-            IsInRange(angle1, gauge1Range) &&
-            IsInRange(angle2, gauge2Range) &&
-            IsInRange(angle3, gauge3Range);
+        // Debug information
+/*         if (Debug.isDebugBuild)
+        {
+            Debug.Log($"Gauge 1: {gaugePivot1.GetCurrentAngle():F1}° - In Range: {gauge1InRange}");
+            Debug.Log($"Gauge 2: {gaugePivot2.GetCurrentAngle():F1}° - In Range: {gauge2InRange}");
+            Debug.Log($"Gauge 3: {gaugePivot3.GetCurrentAngle():F1}° - In Range: {gauge3InRange}");
+        } */
 
-        //Debug.Log($"Angles - G1: {angle1:F2} ({gauge1Range.x}-{gauge1Range.y}), " +
-        //          $"G2: {angle2:F2} ({gauge2Range.x}-{gauge2Range.y}), " +
-        //          $"G3: {angle3:F2} ({gauge3Range.x}-{gauge3Range.y})");
-
-        if (allInTargetZone)
+        if (gauge1InRange && gauge2InRange && gauge3InRange)
         {
             Debug.Log("Oxygen Puzzle Completed!");
-            CompletePuzzle();
-            isCheckingCompletion = false;
-            SetAllRandomness(0f, 0f);
+            puzzleManager.CompletePuzzle();
         }
     }
 
-    private bool IsInRange(float angle, Vector2 range)
+    public override void CompletePuzzle()
     {
-        // Normalize angle to 0-360 range
-        angle = (angle + 360f) % 360f;
-        
-        // Standard range check
-        if (range.y >= range.x)
-        {
-            return angle >= range.x && angle <= range.y;
-        }
-        // Handle wraparound case (like 350° to 10°)
-        else
-        {
-            return angle >= range.x || angle <= range.y;
-        }
+        base.CompletePuzzle();
+        // stop randomizing gauges
+        gaugePivot1.EnableRandomness(false);
+        gaugePivot2.EnableRandomness(false);
+        gaugePivot3.EnableRandomness(false);
+        isCheckingCompletion = false;
+        currentState = PuzzleState.Completed;
     }
 }
