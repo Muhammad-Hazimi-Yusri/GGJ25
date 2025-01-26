@@ -554,6 +554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
+  puzzleManager: {fileID: 0}
   leakPoints:
   - {fileID: 1314829571}
   - {fileID: 97034323}
@@ -581,9 +582,6 @@ MonoBehaviour:
   - {fileID: 116059670}
   - {fileID: 453318477}
   bubbleMaterial: {fileID: 2100000, guid: 78a1c7d72b557944eaece523cece88bf, type: 2}
-  metalSheetPrefab: {fileID: 6335330366532969246, guid: 9f225887744715744a85dd6725f1bd0f, type: 3}
-  spawnPoint: {fileID: 0}
-  placementSnapDistance: 2
 --- !u!4 &172205123
 Transform:
   m_ObjectHideFlags: 0
@@ -2273,27 +2271,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.824
+      value: 1.125
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.17415775
+      value: -3.505
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.84193265
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -0.53958267
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalRotation.z
@@ -2305,7 +2303,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -65.31
       objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
