@@ -44,17 +44,11 @@ public class LeakPuzzle : PuzzleBase
 
     private bool canDrain;
 
-    //private void Awake()
-    //{
-    //    // Debug check
-    //    Debug.Log($"Found {leakAudioSources.Length} leak audio sources");
-    //}
     
     private  void Awake()
     {
         base.Start();
-        
-        //Debug.Log("Leak Puzzle Started!");
+       
 
         // Initialize leak point renderers array
         leakPointRenderers = new MeshRenderer[leakPoints.Length];
@@ -148,9 +142,7 @@ public class LeakPuzzle : PuzzleBase
             {
                 Debug.Log($"Playing audio for leak {currentLeakIndex}");
                 leakAudioSources[currentLeakIndex].Play();
-                // Start particles
-                //leakParticleSystems[currentLeakIndex].Play();
-                SpawnNewMetalSheet();
+                //SpawnNewMetalSheet();
             }
             else
             {
@@ -242,8 +234,7 @@ public class LeakPuzzle : PuzzleBase
         }
     }
 
-
-
+    /*
     private void SpawnNewMetalSheet()
     {
         GameObject sheetObj = Instantiate(metalSheetPrefab, spawnPoint.position, spawnPoint.rotation);
@@ -255,7 +246,19 @@ public class LeakPuzzle : PuzzleBase
             currentMetalSheet.selectExited.AddListener(OnSheetReleased);
         }
     }
+    */
 
+    // New sheet entered
+    public void OnSheetEnter(int index, GameObject sheet)
+    {
+        if (currentLeakIndex == index)
+        {
+            Destroy(sheet);
+            OnMetalSheetPlaced(true);
+        }
+    }
+
+    /*
     private void OnSheetReleased(SelectExitEventArgs args)
     {
         if (currentMetalSheet != null)
@@ -275,6 +278,7 @@ public class LeakPuzzle : PuzzleBase
             }
         }
     }
+    */
 
     private void OnMetalSheetPlaced(bool correctPlacement)
     {
