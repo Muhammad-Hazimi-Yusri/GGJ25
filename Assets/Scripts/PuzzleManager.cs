@@ -25,6 +25,7 @@ public class PuzzleManager : MonoBehaviour
         else
         {
             Debug.Log("All puzzles completed!");
+            showWinScreen();
         }
     }
 
@@ -36,5 +37,10 @@ public class PuzzleManager : MonoBehaviour
             allPuzzles[currentPuzzleIndex].CompletePuzzle();
             StartNextPuzzle();
         }
+    }
+
+    public void showWinScreen()
+    {
+        Debug.Log("You win!");
     }
 }
