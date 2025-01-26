@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class PipeManager : MonoBehaviour
 {
@@ -22,17 +24,24 @@ public class PipeManager : MonoBehaviour
     {
         cooldown = false;
         dragManager.OnDragEnd -= OnPressEnd;
+
+        //get the objectTransforms xrgrab interactable, and add a select exited even for vr release object
+        transportingGameObject.GetComponent<XRGrabInteractable>().selectExited.RemoveListener(VRReleaseObject);
+
+        transportingGameObject = null;
     }
 
 
-    public void VRReleaseObject()
+    public void VRReleaseObject(SelectExitEventArgs args)
     {
 
         if (cooldown)
         {
             return;
         }
-        transportingGameObject.position = pipeToTransportTo.spawnPoint.position + pipeToTransportTo.spawnDirecton;
+
+        SpawnBubbleWithItemInside();
+        //transportingGameObject.position = pipeToTransportTo.spawnPoint.position + pipeToTransportTo.spawnDirecton;
         StartCoroutine(waitABit());
         transportingGameObject = null;
 
@@ -52,6 +61,9 @@ public class PipeManager : MonoBehaviour
         Debug.Log("After Cooldown");
 
         dragManager.OnDragEnd += OnPressEnd;
+
+        //get the objectTransforms xrgrab interactable, and add a select exited even for vr release object
+        objectTransform.GetComponent<XRGrabInteractable>().selectExited.AddListener(VRReleaseObject);
 
 
         transportingGameObject = objectTransform;
@@ -93,6 +105,14 @@ public class PipeManager : MonoBehaviour
 
         //disable the collider of the item
         transportingGameObject.GetComponent<Collider>().enabled = false;
+
+        cooldown = false;
+        dragManager.OnDragEnd -= OnPressEnd;
+
+        //get the objectTransforms xrgrab interactable, and add a select exited even for vr release object
+        transportingGameObject.GetComponent<XRGrabInteractable>().selectExited.RemoveListener(VRReleaseObject);
+
+        pipeToTransportTo.OnTransportedObject();
 
 
     }
