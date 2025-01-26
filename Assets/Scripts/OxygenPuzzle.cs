@@ -117,8 +117,8 @@ public class OxygenPuzzle : PuzzleBase
             IsInRange(angle3, gauge3Range);
 
         //Debug.Log($"Angles - G1: {angle1:F2} ({gauge1Range.x}-{gauge1Range.y}), " +
-                  $"G2: {angle2:F2} ({gauge2Range.x}-{gauge2Range.y}), " +
-                  $"G3: {angle3:F2} ({gauge3Range.x}-{gauge3Range.y})");
+        //          $"G2: {angle2:F2} ({gauge2Range.x}-{gauge2Range.y}), " +
+        //          $"G3: {angle3:F2} ({gauge3Range.x}-{gauge3Range.y})");
 
         if (allInTargetZone)
         {
