@@ -497,6 +497,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4374424163119136645, guid: af4c88aee64b9244f93613fb1121034f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 939684374}
     - targetCorrespondingSourceObject: {fileID: 2578309436623667000, guid: af4c88aee64b9244f93613fb1121034f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 79822690}
@@ -564,7 +567,7 @@ MonoBehaviour:
   manager: {fileID: 1134623843}
   destination: {fileID: 1439079577}
   spawnPoint: {fileID: 505546347}
-  spawnDirecton: {x: 3.07, y: 0, z: 0}
+  spawnDirecton: {x: 0, y: 0, z: 0}
 --- !u!135 &220312424
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2242,6 +2245,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Box
       objectReference: {fileID: 0}
+    - target: {fileID: 8417409813660149672, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 8547546054973254146, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.9
@@ -2290,6 +2297,59 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1108318962}
   m_SourcePrefab: {fileID: 100100000, guid: 51c3bc41ef2c59640887cfcb7e4062a9, type: 3}
+--- !u!1 &939684373
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 939684374}
+  - component: {fileID: 939684375}
+  m_Layer: 8
+  m_Name: InvisibleBubbleWall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &939684374
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939684373}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.002, y: 0, z: 18.65}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1963550625}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &939684375
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939684373}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 9.756631, z: 14.398816}
+  m_Center: {x: 0, y: 4.3783154, z: 0.21951628}
 --- !u!1 &995431571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2505,7 +2565,7 @@ MonoBehaviour:
   m_InteractionManager: {fileID: 0}
   m_Colliders: []
   m_InteractionLayers:
-    m_Bits: 1
+    m_Bits: 4294967295
   m_DistanceCalculationMode: 1
   m_SelectMode: 0
   m_FocusMode: 1
@@ -4659,6 +4719,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 8, y: 2, z: 13}
   m_Center: {x: 3, y: 0, z: 5.5}
+--- !u!4 &1963550625 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4374424163119136645, guid: af4c88aee64b9244f93613fb1121034f, type: 3}
+  m_PrefabInstance: {fileID: 220312420}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2029578091
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4886,6 +4951,9 @@ MonoBehaviour:
   minZDistance: 7.5
   maxZDistance: 11
   scrollSensitivity: -0.001
+  draggableLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!4 &2075660835
 Transform:
   m_ObjectHideFlags: 0

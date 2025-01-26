@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5467667115380530325}
   - component: {fileID: -783606462607621187}
   - component: {fileID: -5748576990670391000}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Metal Sheet
   m_TagString: Draggable
   m_Icon: {fileID: 0}

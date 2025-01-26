@@ -38,6 +38,10 @@ public class DragManager : MonoBehaviour
     // How fast scrolling moves the object forward/back
     [SerializeField] private float scrollSensitivity = 1.0f;
 
+
+    [SerializeField] private LayerMask draggableLayerMask; // Set this in the Inspector
+
+
     private void Awake()
     {
         var playerMap = inputActions.FindActionMap("PC Player");
@@ -57,9 +61,9 @@ public class DragManager : MonoBehaviour
 
     private void OnDisable()
     {
-        _clickAction.Disable();
-        _pointerPosAction.Disable();
-        _scrollAction.Disable();
+        //_clickAction.Disable();
+        //_pointerPosAction.Disable();
+        //_scrollAction.Disable();
     }
 
     private void Update()
@@ -97,19 +101,28 @@ public class DragManager : MonoBehaviour
         }
     }
 
+
+
     private void StartDrag()
     {
         // Raycast from camera through mouse pointer
         Vector2 mousePos = _pointerPosAction.ReadValue<Vector2>();
         Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+        Debug.Log("Mouse Clicked at " + mousePos);
+
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, draggableLayerMask))
         {
+
+            Debug.Log("Raycast from " + ray.origin + " in direction " + ray.direction);
+
             // Check tag or however you identify draggable objects
             if (!hitInfo.transform.CompareTag("Draggable"))
             {
                 return;
             }
+
+            Debug.Log("Hit " + hitInfo.collider.gameObject.name);
 
             // Grab the rigidbody
             _selectedRigidbody = hitInfo.transform.GetComponent<Rigidbody>();

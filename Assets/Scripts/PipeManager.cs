@@ -40,8 +40,9 @@ public class PipeManager : MonoBehaviour
             return;
         }
 
-        SpawnBubbleWithItemInside();
+        SpawnBubbleWithItemInside(true);
         //transportingGameObject.position = pipeToTransportTo.spawnPoint.position + pipeToTransportTo.spawnDirecton;
+
         StartCoroutine(waitABit());
         transportingGameObject = null;
 
@@ -73,7 +74,7 @@ public class PipeManager : MonoBehaviour
     }
 
 
-    private void SpawnBubbleWithItemInside()
+    private void SpawnBubbleWithItemInside(bool isVR)
     {
         //spawn a bubble
         GameObject bubble = Instantiate(bubbleObject, pipeToTransportTo.spawnPoint.position, Quaternion.identity);
@@ -112,6 +113,16 @@ public class PipeManager : MonoBehaviour
         //get the objectTransforms xrgrab interactable, and add a select exited even for vr release object
         transportingGameObject.GetComponent<XRGrabInteractable>().selectExited.RemoveListener(VRReleaseObject);
 
+        //if it's VR, set layer mask to Draggable, if not, set to default
+        if (isVR)
+        {
+            transportingGameObject.gameObject.layer = LayerMask.NameToLayer("Draggable");
+        }
+        else
+        {
+            transportingGameObject.gameObject.layer = LayerMask.NameToLayer("Default");
+        }
+
         pipeToTransportTo.OnTransportedObject();
 
 
@@ -124,7 +135,7 @@ public class PipeManager : MonoBehaviour
         //transform the object to the destination of the pipe end +a small z  and have a cooldown so it doesn't teleport back and forth
         //transportingGameObject.position = pipeToTransportTo.destination.position + new Vector3(0, 0, -1f);
 
-        SpawnBubbleWithItemInside();
+        SpawnBubbleWithItemInside(false);
 
         //dragManager.endDragAfterTeleport();
 
