@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8956923498267847497}
   - component: {fileID: 479395313005076808}
   - component: {fileID: 6732367632931558582}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 1917491785680816036}
   - component: {fileID: 823860614665469704}
   - component: {fileID: -7273321913151370006}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Bubble Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -268,7 +268,7 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1280
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -320,3 +320,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originalScale: {x: 0, y: 0, z: 0}
   originalObject: {fileID: 0}
+  mouseClickAction: {fileID: -3484863573834994092, guid: abdc51f9d1a5af042b55caed42a59701, type: 3}
+  mousePositionAction: {fileID: -5141746421450491065, guid: abdc51f9d1a5af042b55caed42a59701, type: 3}
+  bubbleLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024

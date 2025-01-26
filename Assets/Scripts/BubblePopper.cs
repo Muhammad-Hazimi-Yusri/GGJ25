@@ -5,76 +5,89 @@ using UnityEngine.InputSystem;
 
 public class BubblePopper : MonoBehaviour
 {
-
-
-    //a scale for the item to go back to when popped
+    // A scale for the item to go back to when popped
     public Vector3 originalScale;
 
-    //the original item game object
+    // The original item game object
     public GameObject originalObject;
 
-    //on trigger enter, destroy the object
+    [Header("Input Settings")]
+    [SerializeField] private InputActionReference mouseClickAction; // For mouse clicks
+    [SerializeField] private InputActionReference mousePositionAction; // For mouse position
+    [SerializeField] private LayerMask bubbleLayerMask; // Layer for the bubble (ensure bubble objects are on this layer)
+
+    public Camera mainCamera;
+
+    private void Start()
+    {
+        // Find the main camera if not explicitly set
+        //mainCamera = Camera.main;
+
+        //get the camera from object named "PC Camera" 
+
+        mainCamera = GameObject.Find("PC Camera").GetComponent<Camera>();
+        // Enable input actions
+        mouseClickAction.action.Enable();
+        mousePositionAction.action.Enable();
+    }
+
+    private void OnDestroy()
+    {
+        // Disable input actions when this object is destroyed
+        //mouseClickAction.action.Disable();
+        //mousePositionAction.action.Disable();
+    }
+
+    private void Update()
+    {
+        // Check for mouse click and raycast to the bubble
+        if (mouseClickAction.action.WasPerformedThisFrame())
+        {
+
+            //Debug.Log("Mouse Clicked at " + mousePositionAction.action.ReadValue<Vector2>());
+
+            Vector2 mousePosition = mousePositionAction.action.ReadValue<Vector2>();
+            Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+
+            //Debug.Log("Raycast from " + ray.origin + " in direction " + ray.direction);
+            Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 1f);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, bubbleLayerMask))
+            {
+
+                Debug.Log("Hit " + hit.collider.gameObject.name);
+
+                if (hit.collider.gameObject == gameObject)
+                {
+                    PopBubble();
+                }
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-
-
-
-        //Debug.Log("Bubble Triggered");
-
         if (other.CompareTag("Player"))
         {
-
-            //unparent the object
-            originalObject.transform.parent = null;
-
-            //set the scale back to the original scale
-            originalObject.transform.localScale = originalScale;
-
-
-
-            //enable the rigidbody of the item
-            originalObject.GetComponent<Rigidbody>().isKinematic = false;
-
-            //enable the collider of the item
-            originalObject.GetComponent<Collider>().enabled = true;
-
-            Destroy(gameObject);
-
+            PopBubble();
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void PopBubble()
     {
-        
-    }
+        // Unparent the object
+        originalObject.transform.parent = null;
 
-    // Update is called once per frame
-    void Update()
-    {
+        // Set the scale back to the original scale
+        originalObject.transform.localScale = originalScale;
 
-        if(Keyboard.current.anyKey.wasPressedThisFrame)
-        {
+        // Enable the rigidbody of the item
+        originalObject.GetComponent<Rigidbody>().isKinematic = false;
 
-            //unparent the object
-            originalObject.transform.parent = null;
+        // Enable the collider of the item
+        originalObject.GetComponent<Collider>().enabled = true;
 
-            //set the scale back to the original scale
-            originalObject.transform.localScale = originalScale;
-
-
-
-            //enable the rigidbody of the item
-            originalObject.GetComponent<Rigidbody>().isKinematic = false;
-
-            //enable the collider of the item
-            originalObject.GetComponent<Collider>().enabled = true;
-
-            Destroy(gameObject);
-
-        }
-        
-
-
+        // Destroy the bubble
+        Destroy(gameObject);
     }
 }
