@@ -353,6 +353,9 @@ public class LeakPuzzle : PuzzleBase
         // Stop water filling
         StopCoroutine("RaiseWater");
 
+        // Lower water
+        StartCoroutine("LowerWater");
+
         canDrain = true; // Determines if the button can drain the water
 
         base.CompletePuzzle();
