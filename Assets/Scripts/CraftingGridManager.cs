@@ -116,6 +116,13 @@ public class CraftingGridManager : MonoBehaviour
                     {
                         if (slotOccupants[i].name.Contains("Box"))
                         {
+                            //get the reference to the original item and destroy that too
+                            SlotOccupantRef occupantRef = slotOccupants[i].GetComponent<SlotOccupantRef>();
+                            if (occupantRef != null)
+                            {
+                                Destroy(occupantRef.originalItem);
+                            }
+
                             Destroy(slotOccupants[i]);
                             slotOccupants[i] = null;
 
@@ -123,6 +130,21 @@ public class CraftingGridManager : MonoBehaviour
                             GameObject metalSheet = Instantiate(metalSheetPrefab, slotCubes[i].position, Quaternion.identity);
 
 
+                        }
+
+                        //if it contain "Metal" then just remove the grid item and reactivate the original item
+                        if (slotOccupants[i].name.Contains("Metal"))
+                        {
+                            //get the reference to the original item and destroy that too
+                            SlotOccupantRef occupantRef = slotOccupants[i].GetComponent<SlotOccupantRef>();
+                            if (occupantRef != null)
+                            {
+                                occupantRef.originalItem.SetActive(true);
+                                //move it a bit to the front on the x axis
+                                occupantRef.originalItem.transform.position = new Vector3(occupantRef.originalItem.transform.position.x + 1, occupantRef.originalItem.transform.position.y, occupantRef.originalItem.transform.position.z);
+                            }
+                            Destroy(slotOccupants[i]);
+                            slotOccupants[i] = null;
                         }
                     }
                 }
