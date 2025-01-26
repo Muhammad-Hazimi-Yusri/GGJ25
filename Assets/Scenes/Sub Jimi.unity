@@ -2706,14 +2706,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1387937559}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38268328, y: -0, z: -0, w: 0.9238796}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.8514998, y: -1.45, z: 0.385}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.30000004}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1560854131}
   m_Father: {fileID: 1691671571}
-  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1387937561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4398,14 +4398,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1765912464}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38268328, y: -0, z: -0, w: 0.9238796}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.8514998, y: 0.383, z: 0.385}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.30000004}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1531086278}
   m_Father: {fileID: 1691671571}
-  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1765912466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4864,14 +4864,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1898079464}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38268328, y: -0, z: -0, w: 0.9238796}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.8514998, y: -0.527, z: 0.385}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.30000004}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1894579968}
   m_Father: {fileID: 1691671571}
-  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1898079466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5069,13 +5069,14 @@ MonoBehaviour:
   gaugePivot1: {fileID: 1765912466}
   gaugePivot2: {fileID: 1898079466}
   gaugePivot3: {fileID: 1387937561}
-  targetZoneMin: 0.45
-  targetZoneMax: 0.55
-  maxRandomnessStrength1: 15
-  maxRandomnessStrength2: 10
-  maxRandomnessStrength3: 5
+  gauge1TargetZone: {x: 0, y: 45}
+  gauge2TargetZone: {x: 340, y: 380}
+  gauge3TargetZone: {x: 60, y: 75}
+  maxRandomnessStrength1: 45
+  maxRandomnessStrength2: 30
+  maxRandomnessStrength3: 15
   maxRandomnessSpeed: 3
-  difficultyRampUpTime: 30
+  difficultyRampUpTime: 20
 --- !u!1001 &407112665104769812
 PrefabInstance:
   m_ObjectHideFlags: 0

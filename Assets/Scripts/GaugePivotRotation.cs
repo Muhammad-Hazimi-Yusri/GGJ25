@@ -1,25 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Content.Interaction;
 
 public class GaugePivotRotation : MonoBehaviour
 {
     [SerializeField] private XRSlider Slider;
-    
-    // Optional: Set minimum and maximum rotation angles
     [SerializeField] private float minAngle = 0f;
     [SerializeField] private float maxAngle = 360f;
-
-    [SerializeField] private float randomnessStrength = 5f;  // Controls how much random movement
-    [SerializeField] private float randomnessSpeed = 2f;     // How fast the random movement updates
+    
+    [SerializeField] private float randomnessStrength = 5f;
+    [SerializeField] private float randomnessSpeed = 2f;
     
     private float randomOffset = 0f;
     private float noiseOffset;
 
     void Start()
     {
-        // Initialize random seed
         noiseOffset = Random.Range(0f, 1000f);
     }
 
@@ -31,17 +26,22 @@ public class GaugePivotRotation : MonoBehaviour
 
     void Update()
     {
-        // Generate smooth random movement using Perlin noise
+        // Calculate random rotation
         randomOffset = Mathf.PerlinNoise(Time.time * randomnessSpeed + noiseOffset, 0f) * 2f - 1f;
         randomOffset *= randomnessStrength;
 
-        // Get base angle from slider
-        float baseAngle = Mathf.Lerp(minAngle, maxAngle, Slider.value);
+        // Map slider value to angle range
+        float targetAngle = Mathf.Lerp(minAngle, maxAngle, Slider.value);
         
-        // Add random movement to the base angle
-        float finalAngle = baseAngle + randomOffset;
+        // Apply both target angle and random offset
+        float finalAngle = targetAngle + randomOffset;
         
-        // Set the rotation
+        // Set rotation directly on X axis
         transform.localRotation = Quaternion.Euler(finalAngle, 0f, 0f);
+    }
+
+    public float GetCurrentAngle()
+    {
+        return transform.localRotation.eulerAngles.x;
     }
 }
