@@ -6,6 +6,8 @@ using UnityEngine.Rendering.Universal;
 
 public class LeakPuzzle : PuzzleBase
 {
+    [SerializeField] private PuzzleManager puzzleManager; // Add reference to puzzle manager
+
     [Header("Leak Setup")]
     [SerializeField] private Transform[] leakPoints; 
     [SerializeField] private AudioSource[] leakAudioSources;
@@ -26,11 +28,6 @@ public class LeakPuzzle : PuzzleBase
     [Header("Leak Effects")]
     [SerializeField] private ParticleSystem[] leakParticleSystems; 
     [SerializeField] private Material bubbleMaterial; 
-    
-    [Header("Metal Sheet Settings")]
-    [SerializeField] private GameObject metalSheetPrefab;
-    [SerializeField] private Transform spawnPoint;
-    [SerializeField] private float placementSnapDistance = 0.2f;
     
     private int currentLeakIndex = 0;
     private float breathCounter; // Counter to track time left being able to breathe
@@ -332,7 +329,14 @@ public class LeakPuzzle : PuzzleBase
     {
         // Wait for placement sound to finish (adjust time as needed based on your sound clip length)
         yield return new WaitForSeconds(1.5f);
-        CompletePuzzle();
+        if (puzzleManager != null)
+        {
+            puzzleManager.CompletePuzzle(); // Use the instance reference
+        }
+        else
+        {
+            Debug.LogError("PuzzleManager reference is missing!");
+        }
     }
 
     public override void CompletePuzzle()

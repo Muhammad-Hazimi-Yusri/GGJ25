@@ -23,6 +23,12 @@ public class GaugePivotRotation : MonoBehaviour
         noiseOffset = Random.Range(0f, 1000f);
     }
 
+    public void SetRandomness(float strength, float speed)
+    {
+        randomnessStrength = strength;
+        randomnessSpeed = speed;
+    }
+
     void Update()
     {
         // Generate smooth random movement using Perlin noise
