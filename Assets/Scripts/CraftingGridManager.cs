@@ -129,6 +129,9 @@ public class CraftingGridManager : MonoBehaviour
                             //spawn a metal sheet
                             GameObject metalSheet = Instantiate(metalSheetPrefab, slotCubes[i].position, Quaternion.identity);
 
+                            //add 1 to the x position of the metal sheet
+                            metalSheet.transform.position = new Vector3(metalSheet.transform.position.x + 1, metalSheet.transform.position.y, metalSheet.transform.position.z);
+
 
                         }
 
