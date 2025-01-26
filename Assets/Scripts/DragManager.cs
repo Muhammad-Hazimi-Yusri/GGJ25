@@ -133,7 +133,7 @@ public class DragManager : MonoBehaviour
             _savedUseGravityState = _selectedRigidbody.useGravity;
 
             // Enable gravity and non-kinematic so we get collisions
-            _selectedRigidbody.isKinematic = false;
+            _selectedRigidbody.isKinematic = true;
             _selectedRigidbody.useGravity = false;
 
             // Distance from camera to object
