@@ -162,9 +162,28 @@ public class DragManager : MonoBehaviour
 
     private void EndDrag()
     {
+
+
+
         // Restore the rigidbody’s original states
         if (_selectedRigidbody != null)
         {
+
+            ////get the craftinggridmanager script from the CraftingGridManager object
+            CraftingGridManager craftingGridManager = GameObject.Find("Crafting Area").GetComponent<CraftingGridManager>();
+
+            //if onject is in there, don't allow it to be dragged
+            if (craftingGridManager.isObjectInSlot(_selectedRigidbody.gameObject))
+            {
+                _isDragging = false;
+                //_selectedRigidbody = null;
+
+               // On
+
+                return;
+            }
+
+
             _selectedRigidbody.isKinematic = _savedKinematicState;
             _selectedRigidbody.useGravity = _savedUseGravityState;
         }
