@@ -35,6 +35,10 @@ public class CraftingGridManager : MonoBehaviour
     [Tooltip("Distance from camera when 'dragging' an item.")]
     [SerializeField] private float dragDistance = 3f;
 
+
+
+    public GameObject metalSheetPrefab;
+
     // Currently "dragged" original item
     private GameObject currentItem = null;
 
@@ -86,6 +90,48 @@ public class CraftingGridManager : MonoBehaviour
     {
         // This is like "mouse down"
         AttemptPickup();
+
+
+        //Debug.Log("Mouse Clicked at " + mousePositionAction.action.ReadValue<Vector2>());
+
+        //check if we hit the button "CraftButton" with a raycast
+        Vector2 mousePos = mousePositionAction.action.ReadValue<Vector2>();
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
+
+        Debug.Log("Raycast from " + ray.origin + " in direction " + ray.direction);
+
+        Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red, 5f);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity,dragRaycastLayer))
+        {
+            if (hit.collider.gameObject.name == "CraftButton")
+            {
+
+                Debug.Log("Crafting item...");
+
+                //if there are Box items in the slots (name contains Box), then delete it, and spawn a metalsheet
+                for (int i = 0; i < slotOccupants.Length; i++)
+                {
+                    if (slotOccupants[i] != null)
+                    {
+                        if (slotOccupants[i].name.Contains("Box"))
+                        {
+                            Destroy(slotOccupants[i]);
+                            slotOccupants[i] = null;
+
+                            //spawn a metal sheet
+                            GameObject metalSheet = Instantiate(metalSheetPrefab, slotCubes[i].position, Quaternion.identity);
+
+
+                        }
+                    }
+                }
+
+
+            }
+        }
+
+
     }
 
     private void OnMouseClickReleased(InputAction.CallbackContext ctx)
