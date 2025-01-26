@@ -5069,9 +5069,9 @@ MonoBehaviour:
   gaugePivot1: {fileID: 1765912466}
   gaugePivot2: {fileID: 1898079466}
   gaugePivot3: {fileID: 1387937561}
-  gauge1TargetZone: {x: 0, y: 45}
-  gauge2TargetZone: {x: 340, y: 380}
-  gauge3TargetZone: {x: 60, y: 75}
+  gauge1Range: {x: 0, y: 270}
+  gauge2Range: {x: 0, y: 140}
+  gauge3Range: {x: 0, y: 40}
   maxRandomnessStrength1: 45
   maxRandomnessStrength2: 30
   maxRandomnessStrength3: 15

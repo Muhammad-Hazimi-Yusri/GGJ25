@@ -13,11 +13,11 @@ public class OxygenPuzzle : PuzzleBase
     [SerializeField] private GaugePivotRotation gaugePivot2;
     [SerializeField] private GaugePivotRotation gaugePivot3;
 
-    [Header("Target Zones")]
-    [SerializeField] private Vector2 gauge1TargetZone = new Vector2(0f, 45f);    // White zone around 20-25 degrees
-    [SerializeField] private Vector2 gauge2TargetZone = new Vector2(340f, 380f);  // White zone around 358-360 degrees
-    [SerializeField] private Vector2 gauge3TargetZone = new Vector2(60f, 75f);    // White zone around 65-70 degrees
-    
+    [Header("Target Zones (Unity Rotation)")]
+    [SerializeField] private Vector2 gauge1Range = new Vector2(0f, 270f);   // Maps to your 90-360
+    [SerializeField] private Vector2 gauge2Range = new Vector2(0f, 140f);   // Maps to your 90-230
+    [SerializeField] private Vector2 gauge3Range = new Vector2(0f, 40f);    // Maps to your 90-130
+
     [Header("Randomness Settings")]
     [SerializeField] private float maxRandomnessStrength1 = 45f;
     [SerializeField] private float maxRandomnessStrength2 = 30f;
@@ -25,12 +25,12 @@ public class OxygenPuzzle : PuzzleBase
     [SerializeField] private float maxRandomnessSpeed = 3f;
     [SerializeField] private float difficultyRampUpTime = 20f;
 
+    private bool hasPlayerMovedSliders = false;
     private float puzzleStartTime;
     private bool isCheckingCompletion = false;
 
-    protected override void Start()
+    private void Start()
     {
-        base.Start();
         SetInitialState();
     }
 
@@ -40,6 +40,7 @@ public class OxygenPuzzle : PuzzleBase
         slider2.value = 0.45f;
         slider3.value = 0.3f;
         SetAllRandomness(0.1f, 0.5f);
+        hasPlayerMovedSliders = false;
     }
 
     public override void InitializePuzzle()
@@ -52,16 +53,32 @@ public class OxygenPuzzle : PuzzleBase
 
         puzzleStartTime = Time.time;
         isCheckingCompletion = true;
+        hasPlayerMovedSliders = false;
         
-        Debug.Log("Oxygen Puzzle Started");
+        Debug.Log("Oxygen Puzzle Started - Using Unity rotation system");
     }
 
     private void Update()
     {
         if (currentState != PuzzleState.InProgress) return;
 
+        CheckForPlayerInput();
         UpdateDifficulty();
         CheckPuzzleCompletion();
+    }
+
+    private void CheckForPlayerInput()
+    {
+        if (!hasPlayerMovedSliders)
+        {
+            if (Mathf.Abs(slider1.value - 0.1f) > 0.01f ||
+                Mathf.Abs(slider2.value - 0.9f) > 0.01f ||
+                Mathf.Abs(slider3.value - 0.7f) > 0.01f)
+            {
+                hasPlayerMovedSliders = true;
+                Debug.Log("Player started moving sliders!");
+            }
+        }
     }
 
     private void UpdateDifficulty()
@@ -88,18 +105,20 @@ public class OxygenPuzzle : PuzzleBase
 
     private void CheckPuzzleCompletion()
     {
-        if (!isCheckingCompletion) return;
+        if (!isCheckingCompletion || !hasPlayerMovedSliders) return;
 
-        float gauge1Angle = gaugePivot1.GetCurrentAngle();
-        float gauge2Angle = gaugePivot2.GetCurrentAngle();
-        float gauge3Angle = gaugePivot3.GetCurrentAngle();
+        float angle1 = gaugePivot1.transform.rotation.eulerAngles.x;
+        float angle2 = gaugePivot2.transform.rotation.eulerAngles.x;
+        float angle3 = gaugePivot3.transform.rotation.eulerAngles.x;
 
         bool allInTargetZone = 
-            IsInTargetZone(gauge1Angle, gauge1TargetZone) &&
-            IsInTargetZone(gauge2Angle, gauge2TargetZone) &&
-            IsInTargetZone(gauge3Angle, gauge3TargetZone);
+            IsInRange(angle1, gauge1Range) &&
+            IsInRange(angle2, gauge2Range) &&
+            IsInRange(angle3, gauge3Range);
 
-        Debug.Log($"Angles - G1: {gauge1Angle:F2}, G2: {gauge2Angle:F2}, G3: {gauge3Angle:F2}");
+        //Debug.Log($"Angles - G1: {angle1:F2} ({gauge1Range.x}-{gauge1Range.y}), " +
+                  $"G2: {angle2:F2} ({gauge2Range.x}-{gauge2Range.y}), " +
+                  $"G3: {angle3:F2} ({gauge3Range.x}-{gauge3Range.y})");
 
         if (allInTargetZone)
         {
@@ -110,22 +129,20 @@ public class OxygenPuzzle : PuzzleBase
         }
     }
 
-    private bool IsInTargetZone(float angle, Vector2 targetZone)
+    private bool IsInRange(float angle, Vector2 range)
     {
-        // Normalize the angle to 0-360 range
-        angle = angle % 360f;
-        if (angle < 0) angle += 360f;
-
-        // Normalize target zone values
-        float minAngle = targetZone.x % 360f;
-        float maxAngle = targetZone.y % 360f;
-
-        // Handle wrap-around case (e.g., 340-380 becomes 340-20)
-        if (maxAngle < minAngle)
+        // Normalize angle to 0-360 range
+        angle = (angle + 360f) % 360f;
+        
+        // Standard range check
+        if (range.y >= range.x)
         {
-            return angle >= minAngle || angle <= (maxAngle % 360f);
+            return angle >= range.x && angle <= range.y;
         }
-
-        return angle >= minAngle && angle <= maxAngle;
+        // Handle wraparound case (like 350° to 10°)
+        else
+        {
+            return angle >= range.x || angle <= range.y;
+        }
     }
 }

@@ -4,6 +4,8 @@ using UnityEngine.XR.Content.Interaction;
 public class GaugePivotRotation : MonoBehaviour
 {
     [SerializeField] private XRSlider Slider;
+    
+    // Base rotation range from slider (0-360)
     [SerializeField] private float minAngle = 0f;
     [SerializeField] private float maxAngle = 360f;
     
@@ -26,17 +28,17 @@ public class GaugePivotRotation : MonoBehaviour
 
     void Update()
     {
-        // Calculate random rotation
+        // Calculate random rotation - allow it to freely affect the gauge
         randomOffset = Mathf.PerlinNoise(Time.time * randomnessSpeed + noiseOffset, 0f) * 2f - 1f;
         randomOffset *= randomnessStrength;
 
-        // Map slider value to angle range
+        // Map slider value to full rotation range
         float targetAngle = Mathf.Lerp(minAngle, maxAngle, Slider.value);
         
-        // Apply both target angle and random offset
+        // Add random offset without clamping - let it go outside the range
         float finalAngle = targetAngle + randomOffset;
         
-        // Set rotation directly on X axis
+        // Apply rotation
         transform.localRotation = Quaternion.Euler(finalAngle, 0f, 0f);
     }
 
