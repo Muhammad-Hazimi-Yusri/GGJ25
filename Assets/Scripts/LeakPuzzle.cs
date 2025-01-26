@@ -3,6 +3,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class LeakPuzzle : PuzzleBase
 {
@@ -175,6 +176,7 @@ public class LeakPuzzle : PuzzleBase
         if (breathCounter <= 0)
         {
             Debug.Log("Player has died");
+            SceneManager.LoadScene("DeathScene");
         }
     }
 
