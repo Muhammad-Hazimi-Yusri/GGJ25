@@ -28,6 +28,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
+
     public void CompletePuzzle()
     {
         if (currentPuzzleIndex >= 0 && currentPuzzleIndex < allPuzzles.Count)
