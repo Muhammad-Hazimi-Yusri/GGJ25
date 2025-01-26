@@ -59,7 +59,7 @@ public class BubblePopper : MonoBehaviour
 
                 if (hit.collider.gameObject == gameObject)
                 {
-                    PopBubble();
+                    StartCoroutine(PopBubble());
                 }
             }
         }
@@ -69,12 +69,26 @@ public class BubblePopper : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PopBubble();
+            StartCoroutine(PopBubble());
         }
     }
 
-    private void PopBubble()
+    IEnumerator PopBubble()
     {
+
+        // Play the pop sound
+        GetComponent<AudioSource>().Play();
+
+        //disable the mesh renderer
+        GetComponent<MeshRenderer>().enabled = false;
+
+        //play the particle system
+        GetComponent<ParticleSystem>().Play();
+
+        //wait for 0.5 seconds
+
+        yield return new WaitForSeconds(0.1f);
+
         // Unparent the object
         originalObject.transform.parent = null;
 

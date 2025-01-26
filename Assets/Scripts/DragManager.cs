@@ -109,12 +109,12 @@ public class DragManager : MonoBehaviour
         Vector2 mousePos = _pointerPosAction.ReadValue<Vector2>();
         Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
-        Debug.Log("Mouse Clicked at " + mousePos);
+        //Debug.Log("Mouse Clicked at " + mousePos);
 
         if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, draggableLayerMask))
         {
 
-            Debug.Log("Raycast from " + ray.origin + " in direction " + ray.direction);
+            //Debug.Log("Raycast from " + ray.origin + " in direction " + ray.direction);
 
             // Check tag or however you identify draggable objects
             if (!hitInfo.transform.CompareTag("Draggable"))
@@ -122,7 +122,7 @@ public class DragManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log("Hit " + hitInfo.collider.gameObject.name);
+            //Debug.Log("Hit " + hitInfo.collider.gameObject.name);
 
             // Grab the rigidbody
             _selectedRigidbody = hitInfo.transform.GetComponent<Rigidbody>();
