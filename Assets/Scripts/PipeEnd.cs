@@ -37,4 +37,9 @@ public class PipeEnd : MonoBehaviour
         }
     }
 
+    public void OnTransportedObject()
+    {
+        GetComponent<Renderer>().material.color = Color.white;
+    }
+
 }

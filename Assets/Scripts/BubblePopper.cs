@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BubblePopper : MonoBehaviour
 {
@@ -51,6 +52,29 @@ public class BubblePopper : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if(Keyboard.current.anyKey.wasPressedThisFrame)
+        {
+
+            //unparent the object
+            originalObject.transform.parent = null;
+
+            //set the scale back to the original scale
+            originalObject.transform.localScale = originalScale;
+
+
+
+            //enable the rigidbody of the item
+            originalObject.GetComponent<Rigidbody>().isKinematic = false;
+
+            //enable the collider of the item
+            originalObject.GetComponent<Collider>().enabled = true;
+
+            Destroy(gameObject);
+
+        }
         
+
+
     }
 }
