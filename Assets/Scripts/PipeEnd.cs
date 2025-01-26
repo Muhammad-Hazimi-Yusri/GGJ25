@@ -10,7 +10,7 @@ public class PipeEnd : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        Debug.Log("Pipe Triggered");
+        // Debug.Log("Pipe Triggered");
 
         // Inform the manager of the collision
         if (other.CompareTag("Draggable"))

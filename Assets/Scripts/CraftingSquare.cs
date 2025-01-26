@@ -9,6 +9,10 @@ public class CraftingSquare : MonoBehaviour
     [SerializeField] private InputActionReference mouseClickAction; // Reference to your MouseClick action
 
     bool isMousePressed = false;
+    bool isMousePressedThisFrame = false;
+
+
+
 
 
     private void OnEnable()
@@ -27,7 +31,19 @@ public class CraftingSquare : MonoBehaviour
 
     private void OnMouseClickPerformed(InputAction.CallbackContext context)
     {
+
+        //mouse pressed, and select the this frame to true
         isMousePressed = true;
+        isMousePressedThisFrame = true;
+
+        //disable the mouse pressed this frame after this frame
+        StartCoroutine(mousePressedDisableNextFrame());
+    }
+
+    IEnumerator mousePressedDisableNextFrame()
+    {
+        yield return new WaitForEndOfFrame();
+        isMousePressedThisFrame = false;
     }
 
     private void OnMouseClickReleased(InputAction.CallbackContext context)
@@ -41,23 +57,27 @@ public class CraftingSquare : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //// If the other object is a slot cube
-        if (other.CompareTag("Draggable"))
+        //if (other.CompareTag("Draggable"))
         {
 
-            //released the mouse button
-            if (isMousePressed)
+            if (isMousePressedThisFrame)
             {
-                // Set the slot cube's color to green
-                //other.GetComponent<Renderer>().material.color = Color.green;
 
 
+                //released the mouse button
+                if (isMousePressed)
+                {
+                    // Set the slot cube's color to green
+                    other.GetComponent<Renderer>().material.color = Color.green;
+
+
+                }
+                else
+                {
+                    // Set the slot cube's color to white
+                    other.GetComponent<Renderer>().material.color = Color.white;
+                }
             }
-            else
-            {
-                // Set the slot cube's color to white
-                //other.GetComponent<Renderer>().material.color = Color.white;
-            }
-
 
 
             // Set the slot cube's color to green
@@ -66,30 +86,40 @@ public class CraftingSquare : MonoBehaviour
 
     }
 
+
+
+
     private void OnTriggerStay(Collider other)
     {
         // If the other object is a slot cube
         if (other.CompareTag("Draggable"))
         {
-            //if mouse released
-            if (isMousePressed)
-            {
-                // Set the slot cube's color to green
-               // other.GetComponent<Renderer>().material.color = Color.green;
-            }
-            else
+
+            //if (isMousePressedThisFrame)
             {
 
-                //call the CradftingGridManager to check if the item can be placed in the slot
-                //component is in parent
-                //slot is the last number of the name of the game object minus 1
+                //if mouse released
+                if (isMousePressed)
+                {
+                    // Set the slot cube's color to green
+                    other.GetComponent<Renderer>().material.color = Color.green;
+                }
+                else
+                {
 
-                int slot = int.Parse(gameObject.name.Substring(gameObject.name.Length - 1)) - 1;
+                    //call the CradftingGridManager to check if the item can be placed in the slot
+                    //component is in parent
+                    //slot is the last number of the name of the game object minus 1
 
-                gameObject.GetComponentInParent<CraftingGridManager>().PlaceItemInSlot(slot, other.gameObject);
+                    Debug.Log(gameObject.name.Substring(gameObject.name.Length - 1));
 
-                // Set the slot cube's color to white
-                //other.GetComponent<Renderer>().material.color = Color.white;
+                    int slot = int.Parse(gameObject.name.Substring(gameObject.name.Length - 1)) - 1;
+
+                    gameObject.GetComponentInParent<CraftingGridManager>().PlaceItemInSlot(slot, other.gameObject);
+
+                    // Set the slot cube's color to white
+                    other.GetComponent<Renderer>().material.color = Color.white;
+                }
             }
         }
     }

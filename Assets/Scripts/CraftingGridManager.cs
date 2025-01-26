@@ -2,240 +2,277 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// A small helper class attached to the slot occupant clone.
+/// It stores a reference to the original item so we can restore it later.
+/// </summary>
+public class SlotOccupantRef : MonoBehaviour
+{
+    public GameObject originalItem;
+}
+
+/// <summary>
+/// The main manager for a 3x3 crafting grid in a 3D scene.
+/// </summary>
 public class CraftingGridManager : MonoBehaviour
 {
-
     [Header("Input Settings")]
-    [SerializeField] private InputActionReference mouseClickAction; // Reference to your MouseClick action
-    [SerializeField] private InputActionReference mousePositionAction; // Reference to Pointer Position action
+    [SerializeField] private InputActionReference mouseClickAction;     // For mouse down/up
+    [SerializeField] private InputActionReference mousePositionAction;  // For pointer position
 
     [Header("Camera & Layer Settings")]
     [SerializeField] private Camera mainCamera;
-    [Tooltip("LayerMask for raycasting. E.g. \"Everything\" or specific layers.")]
+    [Tooltip("LayerMask for raycasting. E.g. \"Everything\" or a custom layer.")]
     [SerializeField] private LayerMask dragRaycastLayer;
 
     [Header("Slots")]
     [Tooltip("Exactly 9 transforms for the 3x3 grid 'slot cubes'.")]
-    [SerializeField] private Transform[] slotCubes; // Each is a transparent 3D cube in the scene
+    [SerializeField] private Transform[] slotCubes; // Transparent 3D cubes (with colliders)
 
     [Header("Scaling")]
-    [Tooltip("Scale factor when the item is placed in a slot.")]
+    [Tooltip("Scale factor for the occupant clone in the slot.")]
     [SerializeField] private float slotScaleFactor = 0.3f;
-    [Tooltip("Distance from camera when dragging an item.")]
+    [Tooltip("Distance from camera when 'dragging' an item.")]
     [SerializeField] private float dragDistance = 3f;
 
-    // Tracks which item is occupying each slot (null if empty)
-    private GameObject[] slotOccupants = new GameObject[9];
-
-    // Currently dragged item
+    // Currently "dragged" original item
     private GameObject currentItem = null;
-    private Vector3 currentItemOriginalScale = Vector3.one;
 
-    // Keep a record of each item's true original scale
-    // so we can restore it after removing from a slot.
-    private Dictionary<GameObject, Vector3> originalScales = new Dictionary<GameObject, Vector3>();
+    // Our array storing references to the occupant clones (not the originals).
+    // If null => slot is empty.
+    private GameObject[] slotOccupants = new GameObject[9];
 
     private void Awake()
     {
-        //go through each children under the crafting area, and add them to the slotCubes array (only if it starts with the name CraftingGrid
-
-        Transform[] children = GetComponentsInChildren<Transform>();
+        // Optional convenience: automatically find child objects named "CraftingGridX" as slots
         List<Transform> tempSlotCubes = new List<Transform>();
-        foreach (Transform child in children) {
+        foreach (Transform child in GetComponentsInChildren<Transform>())
+        {
             if (child.name.StartsWith("CraftingGrid"))
             {
                 tempSlotCubes.Add(child);
             }
         }
-
         slotCubes = tempSlotCubes.ToArray();
-
-
     }
+
     private void OnEnable()
     {
-        // Subscribe to input actions
+        // Subscribe to the new input system events
         mouseClickAction.action.performed += OnMouseClickPerformed;
         mouseClickAction.action.canceled += OnMouseClickReleased;
     }
 
     private void OnDisable()
     {
-        // Unsubscribe from input actions
         mouseClickAction.action.performed -= OnMouseClickPerformed;
         mouseClickAction.action.canceled -= OnMouseClickReleased;
     }
 
-    private void OnMouseClickPerformed(InputAction.CallbackContext context)
-    {
-        // This is equivalent to mouse down
-        OnMouseDownPickup();
-    }
-
-    private void OnMouseClickReleased(InputAction.CallbackContext context)
-    {
-        // This is equivalent to mouse up
-        if (currentItem != null)
-        {
-            OnMouseUpDrop();
-        }
-    }
-
     private void Update()
     {
-        // Drag logic: Update position of the currentItem during drag
+        // If we're dragging an item, continuously update its position in front of the camera
         if (currentItem != null)
         {
             DragCurrentItem();
         }
     }
 
-    /// <summary>
-    /// When left mouse button is pressed, either:
-    /// - Pick up a free-floating item
-    /// - OR pick up an item already in a slot (restoring original scale)
-    /// </summary>
-    private void OnMouseDownPickup()
+    // -------------------------------
+    //        INPUT EVENTS
+    // -------------------------------
+
+    private void OnMouseClickPerformed(InputAction.CallbackContext ctx)
     {
-        Vector2 mousePosition = mousePositionAction.action.ReadValue<Vector2>();
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        // This is like "mouse down"
+        AttemptPickup();
+    }
+
+    private void OnMouseClickReleased(InputAction.CallbackContext ctx)
+    {
+        // This is like "mouse up"
+        if (currentItem != null)
+        {
+            AttemptDrop();
+        }
+    }
+
+    // -------------------------------
+    //        DRAG & DROP
+    // -------------------------------
+
+    /// <summary>
+    /// Called on mouse down. We see if we clicked:
+    ///  - a slot occupant clone (then pick up the original),
+    ///  - or a free-floating item with tag=Draggable.
+    /// </summary>
+    private void AttemptPickup()
+    {
+        // Raycast from camera using the new Input System pointer position
+        Vector2 mousePos = mousePositionAction.action.ReadValue<Vector2>();
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, dragRaycastLayer))
         {
             GameObject hitObj = hit.collider.gameObject;
 
-            // A) If we are hitting a slot occupant?
+            // A) Did we click a slot occupant clone?
             int occupantSlotIndex = FindSlotIndexForOccupant(hitObj);
             if (occupantSlotIndex >= 0)
             {
-                // This item is already in a slot. Let's pick it up (remove from slot).
-                RemoveItemFromSlot(occupantSlotIndex);
-                currentItem = hitObj;
-                currentItem.transform.localScale = GetOriginalScale(currentItem); // restore original
+                // We picked up a slot occupant. Let's remove it and re-enable the original item.
+                RemoveSlotOccupant(occupantSlotIndex);
                 return;
             }
 
-            // B) If we are hitting a "free-floating" item (tagged Draggable or something)
-            //    We'll pick it up if it’s not already in a slot
+            // B) Otherwise, if it's a "Draggable" original object:
             if (hitObj.CompareTag("Draggable"))
             {
-                // Check if item is not in a slot
-                if (FindSlotIndexForOccupant(hitObj) == -1)
-                {
-                    currentItem = hitObj;
-                    // Store original scale if not already known
-                    if (!originalScales.ContainsKey(hitObj))
-                    {
-                        originalScales[hitObj] = hitObj.transform.localScale;
-                    }
-                    currentItemOriginalScale = originalScales[hitObj];
-                }
+                // Only pick it up if not already hidden in a slot
+                // (Or if we want to allow picking it up from the world at any time)
+                currentItem = hitObj;
             }
         }
     }
 
     /// <summary>
-    /// Called during mouse drag to reposition currentItem in front of the camera at dragDistance.
+    /// Called each frame while we have a currentItem in "drag" mode.
+    /// Moves it in front of the camera at 'dragDistance'.
     /// </summary>
     private void DragCurrentItem()
     {
-        Vector2 mousePosition = mousePositionAction.action.ReadValue<Vector2>();
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        Vector2 mousePos = mousePositionAction.action.ReadValue<Vector2>();
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
-        // We'll pick a point in space 'dragDistance' units away from the camera
-        Vector3 newPos = ray.GetPoint(dragDistance);
-        currentItem.transform.position = newPos;
+        Vector3 targetPos = ray.GetPoint(dragDistance);
+        currentItem.transform.position = targetPos;
     }
 
     /// <summary>
-    /// When the user releases the mouse button, try snapping the item into a slot (if any).
-    /// Otherwise, just let it stay wherever it was placed.
+    /// Called on mouse up. Attempts to drop the currently dragged item into a slot.
+    /// If we didn't hit a slot, the item just remains wherever it's dropped in the world.
     /// </summary>
-    private void OnMouseUpDrop()
+    private void AttemptDrop()
     {
-        // Raycast again to see if we're pointing at a slot cube
-        Vector2 mousePosition = mousePositionAction.action.ReadValue<Vector2>();
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        Vector2 mousePos = mousePositionAction.action.ReadValue<Vector2>();
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
+
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, dragRaycastLayer))
         {
-            // Did we hit one of our 9 slot cubes?
             int slotIndex = FindSlotIndexForCube(hit.collider.gameObject);
             if (slotIndex >= 0)
             {
-                // 1) If that slot is currently empty, place item there
+                // If slot is empty, place it
                 if (slotOccupants[slotIndex] == null)
                 {
                     PlaceItemInSlot(slotIndex, currentItem);
                 }
-                else
-                {
-                    // Optional: if you want to replace or swap
-                    // For now, let's do nothing. 
-                    // You could do: SwapItems(slotIndex, currentItem);
-                }
+                // else: the slot is occupied, do nothing (or implement swap logic).
             }
         }
-
-        // End dragging in either case
+        // Done dragging
         currentItem = null;
     }
 
+    // -------------------------------
+    //        SLOT LOGIC
+    // -------------------------------
+
     /// <summary>
-    /// Places the item into the specified slot: snaps position, shrinks scale, and stores occupant.
+    /// Creates a simplified "occupant clone" in the specified slot and hides the original item.
     /// </summary>
-    public void PlaceItemInSlot(int slotIndex, GameObject item)
+    public  void PlaceItemInSlot(int slotIndex, GameObject originalItem)
     {
-        slotOccupants[slotIndex] = item;
+        // 1) Hide/disable the original item
+        originalItem.SetActive(false);
 
-        // If we've never tracked its original scale, do so now
-        if (!originalScales.ContainsKey(item))
+        // 2) Create a clone object that only has MeshFilter & MeshRenderer
+        //    so we can display it in the slot at a reduced scale.
+        GameObject occupantClone = new GameObject(originalItem.name + "_SlotClone");
+        occupantClone.transform.SetParent(slotCubes[slotIndex], false); // local transform
+        occupantClone.transform.localPosition = Vector3.zero;
+        occupantClone.transform.localRotation = Quaternion.identity;
+
+        // Add a small helper to reference the original item
+        SlotOccupantRef occupantRef = occupantClone.AddComponent<SlotOccupantRef>();
+        occupantRef.originalItem = originalItem;
+
+        // Copy the mesh data
+        MeshFilter origFilter = originalItem.GetComponent<MeshFilter>();
+        MeshRenderer origRenderer = originalItem.GetComponent<MeshRenderer>();
+
+        if (origFilter && origRenderer)
         {
-            originalScales[item] = item.transform.localScale;
+            MeshFilter cloneFilter = occupantClone.AddComponent<MeshFilter>();
+            cloneFilter.sharedMesh = origFilter.sharedMesh;
+
+            MeshRenderer cloneRenderer = occupantClone.AddComponent<MeshRenderer>();
+            cloneRenderer.sharedMaterials = origRenderer.sharedMaterials;
         }
-        currentItemOriginalScale = originalScales[item];
 
-        // Move item to the center of the slot
-        Transform slotTransform = slotCubes[slotIndex];
-        item.transform.position = slotTransform.position;
+        // Scale it down
+        occupantClone.transform.localScale = Vector3.one * slotScaleFactor;
 
-        // Optionally parent it to the slot for organization (not strictly necessary)
-        item.transform.SetParent(slotTransform);
-
-        // Shrink to fit inside the cube
-        item.transform.localScale = currentItemOriginalScale * slotScaleFactor;
+        // Store the occupant clone in our array
+        slotOccupants[slotIndex] = occupantClone;
     }
 
     /// <summary>
-    /// Removes the occupant item from the slot, freeing it so we can drag it again.
+    /// Removes the occupant clone from the slot, destroys it, and re-enables the original item for dragging.
     /// </summary>
-    private void RemoveItemFromSlot(int slotIndex)
+    private void RemoveSlotOccupant(int slotIndex)
     {
-        GameObject occupant = slotOccupants[slotIndex];
-        if (occupant != null)
-        {
-            // Detach from the slot
-            occupant.transform.SetParent(null);
+        GameObject occupantClone = slotOccupants[slotIndex];
+        if (occupantClone == null) return;
 
-            // Clear occupant
-            slotOccupants[slotIndex] = null;
+        // Find the original
+        SlotOccupantRef occupantRef = occupantClone.GetComponent<SlotOccupantRef>();
+        if (occupantRef && occupantRef.originalItem)
+        {
+            // Re-enable the original item
+            occupantRef.originalItem.SetActive(true);
+
+            // Put the original item into our "currentItem" so we can drag it
+            currentItem = occupantRef.originalItem;
         }
+
+        // Destroy the occupant clone
+        Destroy(occupantClone);
+
+        // Clear the slot
+        slotOccupants[slotIndex] = null;
     }
 
-    /// <summary>
-    /// Finds which slot index (0..8) has the specified occupant item. Returns -1 if not found.
-    /// </summary>
-    private int FindSlotIndexForOccupant(GameObject occupant)
+
+    public bool isObjectInSlot(GameObject obj)
     {
         for (int i = 0; i < slotOccupants.Length; i++)
         {
-            if (slotOccupants[i] == occupant)
+            if (slotOccupants[i] == obj)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    /// <summary>
+    /// Finds the slot index (0..8) whose occupant clone is the specified GameObject.
+    /// </summary>
+    private int FindSlotIndexForOccupant(GameObject occupantClone)
+    {
+        for (int i = 0; i < slotOccupants.Length; i++)
+        {
+            if (slotOccupants[i] == occupantClone)
                 return i;
         }
         return -1;
     }
 
     /// <summary>
-    /// Finds which slot index (0..8) corresponds to the slotCube object we hit. Returns -1 if not found.
+    /// Finds the slot index (0..8) if the provided object is one of our 'slotCubes'.
+    /// Returns -1 if not found.
     /// </summary>
     private int FindSlotIndexForCube(GameObject slotCubeObject)
     {
@@ -245,17 +282,5 @@ public class CraftingGridManager : MonoBehaviour
                 return i;
         }
         return -1;
-    }
-
-    /// <summary>
-    /// Helper to get the original scale stored for an item. 
-    /// If not present, returns item.transform.localScale as fallback.
-    /// </summary>
-    private Vector3 GetOriginalScale(GameObject item)
-    {
-        if (originalScales.ContainsKey(item))
-            return originalScales[item];
-        else
-            return item.transform.localScale;
     }
 }

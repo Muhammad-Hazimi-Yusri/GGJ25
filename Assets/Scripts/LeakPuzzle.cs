@@ -54,7 +54,7 @@ public class LeakPuzzle : PuzzleBase
     {
         base.Start();
         
-        Debug.Log("Leak Puzzle Started!");
+        //Debug.Log("Leak Puzzle Started!");
 
         // Initialize leak point renderers array
         leakPointRenderers = new MeshRenderer[leakPoints.Length];
